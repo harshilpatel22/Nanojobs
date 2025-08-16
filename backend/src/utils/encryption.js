@@ -21,7 +21,7 @@ class EncryptionService {
   encrypt(text) {
     try {
       const iv = crypto.randomBytes(16);
-      const cipher = crypto.createCipherGCM(this.algorithm, this.keyBuffer, iv);
+      const cipher = crypto.createCipheriv(this.algorithm, this.keyBuffer, iv);
       cipher.setAAD(Buffer.from('nanojobs-chat', 'utf8'));
       
       let encrypted = cipher.update(text, 'utf8', 'hex');
@@ -54,7 +54,7 @@ class EncryptionService {
       const authTag = Buffer.from(parts[1], 'hex');
       const encrypted = parts[2];
 
-      const decipher = crypto.createDecipherGCM(this.algorithm, this.keyBuffer, iv);
+      const decipher = crypto.createDecipheriv(this.algorithm, this.keyBuffer, iv);
       decipher.setAAD(Buffer.from('nanojobs-chat', 'utf8'));
       decipher.setAuthTag(authTag);
 
