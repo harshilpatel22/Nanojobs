@@ -1,0 +1,796 @@
+// NanoJobs Database Schema - Updated for Phase 3
+// PostgreSQL database with Prisma ORM - FIXED RELATIONS
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// Enums
+
+enum PaymentStatus {
+  PENDING       // Just created
+  MANDATE_SETUP // UPI mandate being set up
+  ESCROWED      // Money locked in escrow
+  PROCESSING    // Being transferred to worker
+  COMPLETED     // Successfully transferred
+  FAILED        // Transfer failed
+  REFUNDED      // Money returned to employer
+  DISPUTED      // Under dispute
+}
+
+enum BronzeTaskCategory {
+  DATA_ENTRY
+  CONTENT_CREATION  
+  CUSTOMER_SERVICE
+  RESEARCH
+  BASIC_DESIGN
+  BASIC_FINANCE
+}
+
+enum TrialTaskCategory {
+  DATA_ENTRY     // Typing speed + accuracy test
+  CONTENT        // Writing/creativity test  
+  ORGANIZATION   // Excel/spreadsheet skills
+  RESEARCH       // Internet research skills
+  COMMUNICATION  // Email/chat skills
+}
+
+enum MandateStatus {
+  ACTIVE        // Currently active
+  PAUSED        // Temporarily paused
+  EXPIRED       // Validity expired
+  CANCELLED     // Cancelled by user
+  SUSPENDED     // Suspended due to issues
+}
+
+enum UserType {
+  WORKER
+  EMPLOYER
+  ADMIN
+}
+
+enum BadgeLevel {
+  BRONZE
+  SILVER
+  GOLD
+  PLATINUM
+}
+
+enum ExperienceLevel {
+  FRESHER
+  JUNIOR
+  EXPERIENCED
+  SENIOR
+}
+
+enum RegistrationMethod {
+  RESUME
+  QUIZ
+  MANUAL
+}
+
+enum TaskStatus {
+  DRAFT
+  AVAILABLE
+  IN_PROGRESS
+  COMPLETED
+  CANCELLED
+}
+
+enum ApplicationStatus {
+  APPLIED
+  ACCEPTED
+  REJECTED
+  COMPLETED
+}
+
+enum EmployerType {
+  INDIVIDUAL
+  SMALL_BUSINESS
+  COMPANY
+}
+
+enum VerificationStatus {
+  PENDING
+  VERIFIED
+  REJECTED
+}
+
+enum RaterType {
+  WORKER
+  EMPLOYER
+}
+
+// Base User model
+model User {
+  id        String   @id @default(cuid())
+  phone     String   @unique
+  email     String?  @unique
+  name      String
+  userType  UserType @default(WORKER)
+  isActive  Boolean  @default(true)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  // Relations
+  worker   Worker?
+  employer Employer?
+  sessions Session[]
+
+  @@map("users")
+}
+
+model Payment {
+  id            String        @id @default(cuid())
+  taskId        String
+  employerId    String  
+  workerId      String?       // Null until task is assigned
+  amount        Decimal       @db.Decimal(10,2)
+  status        PaymentStatus @default(PENDING)
+  
+  // UPI Details
+  mandateId     String?       // UPI mandate reference  
+  upiId         String?       // Employer's UPI ID
+  workerUpiId   String?       // Worker's UPI ID
+  transactionId String?       // Mock transaction ID
+  
+  // Timestamps
+  escrowedAt    DateTime?     // When money was locked
+  completedAt   DateTime?     // When payment was released
+  refundedAt    DateTime?     // If payment was refunded
+  
+  // Metadata
+  escrowMethod  String?       // UPI, NetBanking, etc.
+  bankName      String?       // Which bank was used
+  paymentNote   String?       // Optional note
+  
+  // Relations
+  task     BronzeTask @relation(fields: [taskId], references: [id], onDelete: Cascade)
+  employer Employer   @relation(fields: [employerId], references: [id], onDelete: Cascade)
+  worker   Worker?    @relation(fields: [workerId], references: [id], onDelete: SetNull)
+  mandate  UPIMandate? @relation(fields: [mandateId], references: [id], onDelete: SetNull)
+  
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  
+  @@map("payments")
+}
+
+model UPIMandate {
+  id          String    @id @default(cuid())
+  employerId  String
+  
+  // UPI Details
+  upiId       String    // employer@paytm, employer@phonepe, etc.
+  bankName    String    // HDFC Bank, SBI, ICICI, etc.
+  accountLast4 String   // Last 4 digits for display
+  mandateRef  String    @unique // Unique mandate reference
+  
+  // Mandate Settings
+  maxAmount   Decimal   @db.Decimal(10,2) @default(50000.00)
+  dailyLimit  Decimal   @db.Decimal(10,2) @default(10000.00)
+  monthlyLimit Decimal  @db.Decimal(10,2) @default(100000.00)
+  
+  // Status
+  status      MandateStatus @default(ACTIVE)
+  validUntil  DateTime
+  
+  // Verification
+  isVerified  Boolean   @default(true) // Auto-verify for demo
+  verifiedAt  DateTime  @default(now())
+  
+  // Relations
+  employer Employer @relation(fields: [employerId], references: [id], onDelete: Cascade)
+  payments Payment[]
+  
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  
+  @@map("upi_mandates")
+}
+
+// Worker-specific data
+model Worker {
+  id                    String             @id @default(cuid())
+  userId                String             @unique
+  badge                 BadgeLevel         @default(BRONZE)
+  badgeReason           String?
+  skills                String[]
+  experienceLevel       ExperienceLevel    @default(FRESHER)
+  estimatedHourlyRate   Int                @default(120)
+  registrationMethod    RegistrationMethod
+  isKYCCompleted        Boolean            @default(false)
+  isPhoneVerified       Boolean            @default(false)
+  isEmailVerified       Boolean            @default(false)
+  availability          String             @default("available")
+  preferredCategories   String[]
+
+  // Registration Path Info
+  registrationPath String  @default("resume") // "resume" or "simple_form"
+  hasResume       Boolean @default(false)
+  
+  // Simple Form Path Fields
+  educationLevel  String? // "10th", "12th", "graduate", "other"
+  availableHours  Int?    // Hours per day available
+  previousWork    String? // Brief description if any
+  
+  // Performance Tracking (replaces quiz scores)
+  averageAccuracy    Float    @default(0.0)
+  averageSpeed       Float    @default(0.0) // Tasks per hour
+  
+  // Trial Tasks Status
+  trialTasksCompleted Int     @default(0)
+  trialTasksPassed    Int     @default(0)
+  bronzeBadgeEarned   Boolean @default(false)
+  
+  // Community Features
+  whatsappOptIn      Boolean @default(false)
+  preferredLanguage  String  @default("english") // "hindi", "english"
+  mentorAssigned     String? // ID of mentor worker
+  
+  // Work stats
+  tasksCompleted        Int                @default(0)
+  averageRating         Decimal?
+  
+  // Working hours
+  workingHoursStart     String?            @default("09:00")
+  workingHoursEnd       String?            @default("18:00")
+  timezone              String             @default("Asia/Kolkata")
+  
+  createdAt             DateTime           @default(now())
+  updatedAt             DateTime           @updatedAt
+
+  // Payment Integration
+  upiId          String?   // worker@phonepe, worker@paytm
+  bankName       String?   // Preferred bank
+  totalEarnings  Decimal   @db.Decimal(10,2) @default(0.00)
+
+  // Relations
+  user              User               @relation(fields: [userId], references: [id], onDelete: Cascade)
+  resume            Resume?
+  quizResult        QuizResult?
+  badgeHistory      BadgeHistory[]
+  completedTasks    BronzeTask[]       @relation("CompletedBy")
+  trialSubmissions  TrialTaskSubmission[]
+  communityMemberships CommunityMembership[]
+  taskApplications  TaskApplication[]
+  bronzeTaskApplications BronzeTaskApplication[]
+  taskSubmissions   TaskSubmission[]   // NEW: Task submissions
+  payments Payment[]
+  
+  // Rating Relations
+  ratingsGiven     Rating[] @relation("WorkerRater")
+  ratingsReceived  Rating[] @relation("WorkerRated")
+  
+  // Chat Relations
+  chats            TaskChat[]
+
+  @@map("workers")
+}
+
+model TrialTask {
+  id           String   @id @default(cuid())
+  title        String   // "Data Entry Trial", "Content Creation Trial", etc.
+  description  String   @db.Text
+  category     TrialTaskCategory
+  
+  // Task Parameters
+  payAmount    Decimal  @db.Decimal(8,2) // ₹50-100 per trial
+  timeLimit    Int      // Minutes to complete  
+  difficulty   String   @default("beginner")
+  
+  // Success Criteria
+  accuracyThreshold    Float   @default(90.0) // % accuracy needed to pass
+  speedThreshold       Float?  // Minimum speed if applicable (WPM, tasks/hour)
+  qualityChecklist     Json    // Specific quality requirements
+  
+  // Task Data
+  sampleData          Json     // Sample data for the trial
+  instructions        String   @db.Text // Step-by-step instructions
+  expectedOutput      Json     // What the completed task should look like
+  
+  // Evaluation
+  autoGrading         Boolean  @default(true) // Can be auto-evaluated
+  manualReview        Boolean  @default(false) // Needs human review
+  
+  // Relations  
+  submissions         TrialTaskSubmission[]
+  
+  isActive    Boolean  @default(true)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  
+  @@map("trial_tasks")
+}
+
+model BronzeTaskApplication {
+  id          String            @id @default(cuid())
+  bronzeTaskId String
+  workerId    String
+  status      ApplicationStatus @default(APPLIED)
+  message     String?           @db.Text
+  appliedAt   DateTime          @default(now())
+  
+  // Relations
+  bronzeTask  BronzeTask @relation(fields: [bronzeTaskId], references: [id], onDelete: Cascade)
+  worker      Worker     @relation(fields: [workerId], references: [id], onDelete: Cascade)
+  submission  TaskSubmission? // One-to-one with submission
+  
+  @@unique([bronzeTaskId, workerId])
+  @@map("bronze_task_applications")
+}
+
+// Task applications
+model TaskApplication {
+  id          String            @id @default(cuid())
+  taskId      String
+  workerId    String
+  status      ApplicationStatus @default(APPLIED)
+  message     String?           @db.Text
+  proposedRate Decimal?
+  appliedAt   DateTime          @default(now())
+  respondedAt DateTime?
+  completedAt DateTime?
+
+  // Relations
+  task   BronzeTask @relation(fields: [taskId], references: [id], onDelete: Cascade)
+  worker Worker     @relation(fields: [workerId], references: [id], onDelete: Cascade)
+  
+  // Rating Relations
+  rating Rating?    @relation("TaskRating")
+
+  @@unique([taskId, workerId])
+  @@map("task_applications")
+}
+
+model TrialTaskSubmission {
+  id            String    @id @default(cuid())
+  trialTaskId   String
+  workerId      String
+  
+  // Submission Data
+  submittedWork Json      // The actual work submitted
+  timeSpent     Int       // Minutes taken to complete
+  submittedAt   DateTime  @default(now())
+  
+  // Evaluation Results
+  passed           Boolean  @default(false)
+  accuracyScore    Float?   // % accuracy achieved
+  speedScore       Float?   // Speed achieved (WPM, tasks/hour, etc.)
+  qualityScore     Float?   // Overall quality rating
+  feedback         String?  // Feedback for improvement
+  
+  // Review Process
+  autoEvaluated    Boolean  @default(false)
+  manuallyReviewed Boolean  @default(false)
+  reviewedBy       String?  // Admin who reviewed
+  reviewedAt       DateTime?
+  
+  // Relations
+  trialTask       TrialTask @relation(fields: [trialTaskId], references: [id])
+  worker          Worker    @relation(fields: [workerId], references: [id])
+  
+  @@map("trial_task_submissions")
+}
+
+model CommunityGroup {
+  id          String   @id @default(cuid())
+  name        String   // "Bangalore Data Entry Workers", "Content Creators Community"
+  description String   
+  category    String   // "location", "skill", "general"
+  
+  // WhatsApp Integration
+  whatsappGroupId String?  // WhatsApp group ID if integrated
+  whatsappInviteLink String? // Invite link
+  
+  // Group Settings
+  isActive         Boolean @default(true)
+  memberLimit      Int     @default(100)
+  currentMembers   Int     @default(0)
+  language         String  @default("english")
+  
+  // Member Management
+  members         CommunityMembership[]
+  
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+  
+  @@map("community_groups")
+}
+
+model CommunityMembership {
+  id            String   @id @default(cuid())
+  workerId      String
+  groupId       String
+  
+  role          String   @default("member") // "member", "mentor", "admin"
+  joinedAt      DateTime @default(now())
+  isActive      Boolean  @default(true)
+  
+  // Relations
+  worker        Worker         @relation(fields: [workerId], references: [id])
+  group         CommunityGroup @relation(fields: [groupId], references: [id])
+  
+  @@unique([workerId, groupId])
+  @@map("community_memberships")
+}
+
+// Employer data - Enhanced for Phase 3
+model Employer {
+  id                  String              @id @default(cuid())
+  userId              String              @unique
+  employerType        EmployerType        @default(INDIVIDUAL)
+  companyName         String?
+  website             String?
+  description         String?
+  businessCategory    String              @default("other")
+  expectedTaskVolume  String              @default("low") // low, medium, high
+  
+  // Verification
+  isVerified          Boolean             @default(false)
+  verificationStatus  VerificationStatus  @default(PENDING)
+  verificationNote    String?
+  verifiedAt          DateTime?
+  
+  // Statistics
+  tasksPosted         Int                 @default(0)
+  totalSpent          Decimal             @default(0.00)
+  averageRating       Decimal?
+  
+  createdAt           DateTime            @default(now())
+  updatedAt           DateTime            @updatedAt
+
+  // Payment Integration
+  upiId          String?   // employer@phonepe, employer@paytm
+  bankName       String?   // Preferred bank
+  totalEarnings  Decimal   @db.Decimal(10,2) @default(0.00)
+
+  // Relations
+  user        User         @relation(fields: [userId], references: [id], onDelete: Cascade)
+  tasks       BronzeTask[]
+  upiMandates UPIMandate[]
+  payments    Payment[]
+  
+  // Rating Relations
+  ratingsGiven     Rating[] @relation("EmployerRater")
+  ratingsReceived  Rating[] @relation("EmployerRated")
+  
+  // Chat Relations
+  chats            TaskChat[]
+
+  @@map("employers")
+}
+
+// Resume data for workers who register with resume
+model Resume {
+  id           String   @id @default(cuid())
+  workerId     String   @unique
+  originalName String
+  fileName     String
+  filePath     String
+  fileSize     Int
+  mimeType     String
+  textContent  String   @db.Text
+  metadata     Json
+  basicInfo    Json     // Extracted info like name, email, phone
+  uploadedAt   DateTime @default(now())
+
+  // Relations
+  worker Worker @relation(fields: [workerId], references: [id], onDelete: Cascade)
+
+  @@map("resumes")
+}
+
+// Quiz results for workers who register without resume
+model QuizResult {
+  id             String   @id @default(cuid())
+  workerId       String   @unique
+  answers        Json     // Array of quiz answers
+  totalScore     Int
+  maxScore       Int      @default(30)
+  timeTaken      Int?     // Time in seconds
+  evaluatedBy    String   @default("ai") // 'ai' or 'manual'
+  aiConfidence   Int?     // AI confidence score 0-100
+  aiSource       String?  // 'claude_ai' or 'fallback'
+  createdAt      DateTime @default(now())
+
+  // Relations
+  worker Worker @relation(fields: [workerId], references: [id], onDelete: Cascade)
+
+  @@map("quiz_results")
+}
+
+// Badge progression history
+model BadgeHistory {
+  id          String     @id @default(cuid())
+  workerId    String
+  fromBadge   BadgeLevel?
+  toBadge     BadgeLevel
+  reason      String
+  source      String     // 'resume_analysis', 'quiz_evaluation', 'manual_upgrade'
+  assignedBy  String?    // User ID if manually assigned
+  assignedAt  DateTime   @default(now())
+
+  // Relations
+  worker Worker @relation(fields: [workerId], references: [id], onDelete: Cascade)
+
+  @@map("badge_history")
+}
+
+// FIXED: Bronze Task model with proper relations
+model BronzeTask {
+  id          String      @id @default(cuid())
+  employerId  String      // ADDED: Reference to employer
+  title       String
+  description String      @db.Text
+  category    BronzeTaskCategory
+  
+  // Task Details
+  duration    Int         // Minutes (60-180 for 1-3 hours)
+  payAmount   Decimal     @db.Decimal(8,2)
+  difficulty  String      // "beginner", "intermediate", "advanced"
+  
+  // Simplified Requirements (no complex AI matching)
+  skillTags        String[]  // ["excel", "english", "typing", "canva"]
+  minAccuracy      Float     @default(95.0)
+  minTasksCompleted Int      @default(0) // Minimum completed tasks needed
+  
+  // Business Context  
+  industry    String?     // "ecommerce", "startup", "sme"
+  recurring   Boolean     @default(false)
+  templates   Json?       // Templates and examples
+  
+  // Language Support
+  instructionLanguage String @default("english") // "hindi", "english", "both"
+  hasVoiceInstructions Boolean @default(false)
+  
+  // FIXED: Proper relations with opposite fields
+  employer         Employer                @relation(fields: [employerId], references: [id], onDelete: Cascade)
+  applications     BronzeTaskApplication[]
+  payments         Payment[]
+  taskApplications TaskApplication[]
+  completedBy      Worker[]                @relation("CompletedBy")
+  ratings          Rating[]                // Task ratings
+  attachments      TaskAttachment[]        // Files uploaded by employer
+  submissions      TaskSubmission[]        // Files/content submitted by worker
+  chat             TaskChat?               // One-to-one encrypted chat per task
+  
+  createdAt   DateTime    @default(now())
+  updatedAt   DateTime    @updatedAt
+  
+  @@map("bronze_tasks")
+}
+
+
+// Rating System - Star-based mutual ratings
+model Rating {
+  id            String    @id @default(cuid())
+  taskId        String    // Reference to the completed task
+  applicationId String    @unique // Reference to the task application
+  
+  // Rater Information
+  raterType     RaterType // WORKER or EMPLOYER
+  workerId      String?   // Worker giving the rating (if rater is worker)
+  employerId    String?   // Employer giving the rating (if rater is employer)
+  
+  // Rated Information  
+  ratedWorkerId   String? // Worker being rated (if employer is rating worker)
+  ratedEmployerId String? // Employer being rated (if worker is rating employer)
+  
+  // Rating Details
+  stars         Int       // 1-5 stars only
+  
+  // Metadata
+  ratedAt       DateTime  @default(now())
+  isVisible     Boolean   @default(true) // Can be hidden by admin
+  
+  // Relations
+  task          BronzeTask       @relation(fields: [taskId], references: [id], onDelete: Cascade)
+  application   TaskApplication  @relation("TaskRating", fields: [applicationId], references: [id], onDelete: Cascade)
+  
+  // Optional relations based on who's rating whom
+  workerRater   Worker?    @relation("WorkerRater", fields: [workerId], references: [id], onDelete: Cascade)
+  employerRater Employer?  @relation("EmployerRater", fields: [employerId], references: [id], onDelete: Cascade)
+  workerRated   Worker?    @relation("WorkerRated", fields: [ratedWorkerId], references: [id], onDelete: Cascade)
+  employerRated Employer?  @relation("EmployerRated", fields: [ratedEmployerId], references: [id], onDelete: Cascade)
+  
+  // Constraints
+  @@index([taskId])
+  @@index([workerId])
+  @@index([employerId])
+  @@index([ratedWorkerId])
+  @@index([ratedEmployerId])
+  @@map("ratings")
+}
+
+// User sessions for authentication
+model Session {
+  id        String   @id @default(cuid())
+  userId    String
+  token     String   @unique
+  isActive  Boolean  @default(true)
+  expiresAt DateTime
+  createdAt DateTime @default(now())
+  lastUsed  DateTime @default(now())
+
+  metadata Json?
+
+  // Relations
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("sessions")
+}
+
+// System configuration and settings
+model SystemConfig {
+  id          String   @id @default(cuid())
+  key         String   @unique
+  value       String
+  description String?
+  updatedAt   DateTime @updatedAt
+
+  @@map("system_config")
+}
+
+// Task Attachments - Files uploaded by employers when creating tasks
+model TaskAttachment {
+  id           String    @id @default(cuid())
+  taskId       String
+  fileName     String    // Original filename
+  filePath     String    // Path to file on server
+  fileSize     Int       // Size in bytes
+  mimeType     String    // MIME type (image/jpeg, application/pdf, etc.)
+  fileType     String    // "image", "document", "spreadsheet", "other"
+  description  String?   // Optional description from employer
+  isRequired   Boolean   @default(false) // Whether worker must reference this file
+  uploadedAt   DateTime  @default(now())
+  
+  // Relations
+  task         BronzeTask @relation(fields: [taskId], references: [id], onDelete: Cascade)
+  
+  @@map("task_attachments")
+}
+
+// Task Submissions - Content submitted by workers
+model TaskSubmission {
+  id           String              @id @default(cuid())
+  taskId       String
+  workerId     String
+  applicationId String             @unique // Links to specific application
+  
+  // Submission Content
+  submissionType String            // "file", "text", "link", "mixed"
+  textContent    String?           @db.Text // Text content if applicable
+  submissionData Json?             // Structured data (links, metadata, etc.)
+  
+  // Status and Review
+  status         TaskSubmissionStatus @default(SUBMITTED)
+  submittedAt    DateTime          @default(now())
+  reviewedAt     DateTime?
+  reviewNote     String?           @db.Text // Employer feedback
+  
+  // Version Control
+  version        Int               @default(1)
+  isLatest       Boolean           @default(true)
+  previousVersionId String?        // Reference to previous version
+  
+  // Relations
+  task           BronzeTask        @relation(fields: [taskId], references: [id], onDelete: Cascade)
+  worker         Worker            @relation(fields: [workerId], references: [id], onDelete: Cascade)
+  application    BronzeTaskApplication @relation(fields: [applicationId], references: [id], onDelete: Cascade)
+  files          TaskSubmissionFile[]
+  previousVersion TaskSubmission?  @relation("SubmissionVersions", fields: [previousVersionId], references: [id])
+  nextVersions   TaskSubmission[]  @relation("SubmissionVersions")
+  
+  @@map("task_submissions")
+}
+
+// Task Submission Files - Individual files in a submission
+model TaskSubmissionFile {
+  id           String         @id @default(cuid())
+  submissionId String
+  fileName     String         // Original filename
+  filePath     String         // Path to file on server
+  fileSize     Int            // Size in bytes
+  mimeType     String         // MIME type
+  fileType     String         // "image", "document", "spreadsheet", "other"
+  description  String?        // Optional description from worker
+  uploadedAt   DateTime       @default(now())
+  
+  // Relations
+  submission   TaskSubmission @relation(fields: [submissionId], references: [id], onDelete: Cascade)
+  
+  @@map("task_submission_files")
+}
+
+// Add submission status enum
+enum TaskSubmissionStatus {
+  DRAFT         // Worker is still working on it
+  SUBMITTED     // Submitted for review
+  UNDER_REVIEW  // Employer is reviewing
+  REVISION_REQUESTED // Employer requested changes
+  APPROVED      // Employer approved
+  REJECTED      // Employer rejected
+}
+
+// ===================================
+// CHAT SYSTEM MODELS - ENCRYPTED
+// ===================================
+
+model TaskChat {
+  id          String   @id @default(cuid())
+  taskId      String
+  workerId    String  
+  employerId  String
+  isActive    Boolean  @default(true)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  
+  // Relations
+  task        BronzeTask @relation(fields: [taskId], references: [id], onDelete: Cascade)
+  worker      Worker     @relation(fields: [workerId], references: [id], onDelete: Cascade)
+  employer    Employer   @relation(fields: [employerId], references: [id], onDelete: Cascade)
+  messages    ChatMessage[]
+  
+  // Only one chat per task
+  @@unique([taskId])
+  @@map("task_chats")
+}
+
+model ChatMessage {
+  id              String    @id @default(cuid())
+  chatId          String
+  senderId        String    // User ID (can be worker or employer user)
+  senderType      String    // 'worker' or 'employer'
+  encryptedContent String   @db.Text // AES encrypted message content
+  messageType     String    @default("text") // 'text', 'file', 'system'
+  isRead          Boolean   @default(false)
+  isDeleted       Boolean   @default(false)
+  createdAt       DateTime  @default(now())
+  
+  // Relations
+  chat            TaskChat  @relation(fields: [chatId], references: [id], onDelete: Cascade)
+  
+  @@map("chat_messages")
+}
+
+
+
+// Performance Indexes for Phase 3
+// These will be applied during migration
+
+// User indexes
+// @@index([phone])
+// @@index([email])
+// @@index([userType])
+
+// Worker indexes  
+// @@index([badge])
+// @@index([availability])
+// @@index([registrationMethod])
+
+// Employer indexes
+// @@index([isVerified])
+// @@index([employerType])
+// @@index([businessCategory])
+
+// Task indexes
+// @@index([status])
+// @@index([category])
+// @@index([requiredBadge])
+// @@index([deadline])
+// @@index([employerId])
+
+// Application indexes
+// @@index([status])
+// @@index([workerId])
+// @@index([taskId])
+
+// Session indexes
+// @@index([expiresAt])
+// @@index([isActive])

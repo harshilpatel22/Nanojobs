@@ -1,0 +1,625 @@
+/**
+ * TaskMarketplace Component Styles
+ * Business support task marketplace with enhanced filtering
+ */
+
+/* Main Container */
+.container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: var(--space-6);
+  min-height: 100vh;
+  background-color: var(--background);
+}
+
+/* Enhanced Header */
+.header {
+  background-color: var(--background-white);
+  border-radius: var(--radius-xl);
+  box-shadow: var(--shadow-lg);
+  padding: var(--space-6);
+  margin-bottom: var(--space-6);
+}
+
+.headerTop {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: var(--space-6);
+}
+
+.headerInfo {
+  text-align: center;
+  flex: 1;
+  margin: 0 var(--space-6);
+}
+
+.headerInfo h1 {
+  font-size: var(--font-size-3xl);
+  color: var(--text-primary);
+  margin-bottom: var(--space-2);
+  font-weight: var(--font-weight-bold);
+}
+
+.headerInfo p {
+  font-size: var(--font-size-lg);
+  color: var(--text-secondary);
+  line-height: var(--line-height-relaxed);
+  margin-bottom: var(--space-3);
+}
+
+.workerBadge {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+  background-color: var(--badge-bronze-bg);
+  color: var(--badge-bronze-text);
+  padding: var(--space-2) var(--space-4);
+  border-radius: var(--radius-full);
+  font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-semibold);
+}
+
+.businessFocus {
+  color: var(--primary);
+  font-weight: var(--font-weight-medium);
+}
+
+.headerActions {
+  display: flex;
+  gap: var(--space-3);
+}
+
+/* Business Categories Section */
+.categorySection {
+  margin-bottom: var(--space-6);
+}
+
+.categorySection h3 {
+  color: var(--text-primary);
+  margin-bottom: var(--space-4);
+  font-size: var(--font-size-xl);
+  font-weight: var(--font-weight-semibold);
+}
+
+.categoryTabs {
+  display: flex;
+  gap: var(--space-2);
+  flex-wrap: wrap;
+  margin-bottom: var(--space-6);
+}
+
+.categoryTab {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  padding: var(--space-3) var(--space-4);
+  border: 2px solid var(--border);
+  border-radius: var(--radius-lg);
+  background-color: var(--background-white);
+  color: var(--text-secondary);
+  font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-medium);
+  cursor: pointer;
+  transition: var(--transition-colors);
+}
+
+.categoryTab:hover {
+  border-color: var(--primary-light);
+  color: var(--text-primary);
+  background-color: rgba(0, 102, 255, 0.02);
+}
+
+.categoryTab.active {
+  border-color: var(--primary);
+  background-color: var(--primary);
+  color: var(--text-white);
+}
+
+.categoryTab svg {
+  flex-shrink: 0;
+}
+
+.taskCount {
+  background-color: rgba(255, 255, 255, 0.2);
+  padding: var(--space-1) var(--space-2);
+  border-radius: var(--radius-full);
+  font-size: var(--font-size-xs);
+  font-weight: var(--font-weight-semibold);
+  margin-left: var(--space-1);
+}
+
+.active .taskCount {
+  background-color: rgba(255, 255, 255, 0.2);
+}
+
+/* Search Section */
+.searchSection {
+  margin-bottom: var(--space-6);
+}
+
+.searchBar {
+  display: flex;
+  gap: var(--space-4);
+  align-items: center;
+  margin-bottom: var(--space-4);
+}
+
+.searchInput {
+  flex: 1;
+}
+
+.activeFilter {
+  background-color: var(--primary);
+  color: var(--text-white);
+}
+
+/* Enhanced Filter Panel */
+.filtersPanel {
+  border: 2px solid var(--primary-light);
+  border-radius: var(--radius-xl);
+  background-color: var(--background-white);
+  box-shadow: var(--shadow-lg);
+}
+
+.filtersGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: var(--space-4);
+  margin-bottom: var(--space-6);
+}
+
+.filterGroup {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+}
+
+.filterLabel {
+  font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-medium);
+  color: var(--text-primary);
+}
+
+.filterSelect {
+  height: var(--input-height);
+  padding: 0 var(--space-4);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  background-color: var(--background-white);
+  font-size: var(--font-size-base);
+  color: var(--text-primary);
+  cursor: pointer;
+  transition: var(--transition-colors);
+}
+
+.filterSelect:focus {
+  outline: none;
+  border-color: var(--primary);
+  box-shadow: var(--focus-ring);
+}
+
+.filterCheckbox {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  font-size: var(--font-size-sm);
+  color: var(--text-secondary);
+  cursor: pointer;
+}
+
+.filterCheckbox input[type="checkbox"] {
+  width: 18px;
+  height: 18px;
+  accent-color: var(--primary);
+  cursor: pointer;
+}
+
+.filterActions {
+  display: flex;
+  gap: var(--space-3);
+  justify-content: flex-end;
+  align-items: center;
+  grid-column: 1 / -1;
+}
+
+/* Results Header */
+.resultsHeader {
+  background-color: var(--background-white);
+  border-radius: var(--radius-xl);
+  padding: var(--space-6);
+  margin-bottom: var(--space-6);
+  box-shadow: var(--shadow-md);
+}
+
+.resultsSummary h2 {
+  font-size: var(--font-size-2xl);
+  color: var(--text-primary);
+  margin-bottom: var(--space-2);
+  font-weight: var(--font-weight-bold);
+}
+
+.resultsSummary p {
+  color: var(--text-secondary);
+  font-size: var(--font-size-base);
+  margin-bottom: 0;
+  line-height: var(--line-height-relaxed);
+}
+
+.categoryInfo {
+  margin-top: var(--space-4);
+  padding-top: var(--space-4);
+  border-top: 1px solid var(--border);
+}
+
+.categoryDetails h4 {
+  color: var(--text-primary);
+  margin-bottom: var(--space-2);
+  font-size: var(--font-size-lg);
+}
+
+.categoryDetails p {
+  color: var(--text-secondary);
+  margin-bottom: var(--space-3);
+  line-height: var(--line-height-relaxed);
+}
+
+.categoryMeta {
+  display: flex;
+  gap: var(--space-6);
+  font-size: var(--font-size-sm);
+  color: var(--text-muted);
+}
+
+/* Task List */
+.tasksList {
+  margin-bottom: var(--space-8);
+}
+
+.tasksGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(380px, 1fr));
+  gap: var(--space-6);
+}
+
+/* Empty State */
+.emptyState {
+  border: 2px dashed var(--border);
+  border-radius: var(--radius-xl);
+  text-align: center;
+}
+
+.emptyContent {
+  padding: var(--space-8);
+}
+
+.emptyIcon {
+  color: var(--text-muted);
+  margin-bottom: var(--space-4);
+}
+
+.emptyContent h3 {
+  color: var(--text-primary);
+  margin-bottom: var(--space-3);
+  font-size: var(--font-size-xl);
+}
+
+.emptyContent p {
+  color: var(--text-secondary);
+  margin-bottom: var(--space-4);
+  line-height: var(--line-height-relaxed);
+  max-width: 400px;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+/* Business Support Stats */
+.businessStats {
+  margin-bottom: var(--space-6);
+  border: 2px solid var(--primary-light);
+  border-radius: var(--radius-xl);
+  background: linear-gradient(135deg, rgba(0, 102, 255, 0.05), rgba(0, 102, 255, 0.02));
+}
+
+.stats {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: var(--space-6);
+}
+
+.stat {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  padding: var(--space-4);
+  text-align: center;
+}
+
+.stat svg {
+  color: var(--primary);
+  flex-shrink: 0;
+}
+
+.statValue {
+  font-size: var(--font-size-xl);
+  font-weight: var(--font-weight-bold);
+  color: var(--text-primary);
+  line-height: 1;
+  margin-bottom: var(--space-1);
+}
+
+.statLabel {
+  font-size: var(--font-size-sm);
+  color: var(--text-secondary);
+  line-height: var(--line-height-tight);
+}
+
+/* Business Success Tips */
+.businessTips {
+  margin-bottom: var(--space-6);
+  background: linear-gradient(135deg, rgba(255, 107, 53, 0.05), rgba(255, 107, 53, 0.02));
+  border: 2px solid var(--secondary-light);
+  border-radius: var(--radius-xl);
+}
+
+.tips {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: var(--space-6);
+}
+
+.tip {
+  padding: var(--space-4);
+}
+
+.tip h4 {
+  color: var(--secondary-dark);
+  margin-bottom: var(--space-2);
+  font-size: var(--font-size-base);
+  font-weight: var(--font-weight-semibold);
+}
+
+.tip p {
+  color: var(--text-secondary);
+  font-size: var(--font-size-sm);
+  line-height: var(--line-height-relaxed);
+  margin-bottom: 0;
+}
+
+/* Language Toggle */
+.languageToggle {
+  position: fixed;
+  bottom: var(--space-6);
+  right: var(--space-6);
+  z-index: var(--z-fixed);
+}
+
+/* Task Card Enhancement (if TaskCard needs marketplace-specific styling) */
+.taskCard {
+  border: 2px solid var(--border);
+  border-radius: var(--radius-xl);
+  background-color: var(--background-white);
+  transition: all var(--transition-normal);
+  overflow: hidden;
+}
+
+.taskCard:hover {
+  border-color: var(--primary-light);
+  box-shadow: var(--shadow-lg);
+  transform: translateY(-2px);
+}
+
+.taskCardHighlight {
+  border-color: var(--success);
+  background: linear-gradient(135deg, rgba(0, 200, 150, 0.05), rgba(0, 200, 150, 0.02));
+}
+
+.businessBadge {
+  position: absolute;
+  top: var(--space-3);
+  right: var(--space-3);
+  background-color: var(--primary);
+  color: var(--text-white);
+  padding: var(--space-1) var(--space-2);
+  border-radius: var(--radius-full);
+  font-size: var(--font-size-xs);
+  font-weight: var(--font-weight-semibold);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+/* Mobile Responsiveness */
+@media (max-width: 1024px) {
+  .tasksGrid {
+    grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+    gap: var(--space-4);
+  }
+  
+  .stats {
+    grid-template-columns: repeat(2, 1fr);
+    gap: var(--space-4);
+  }
+  
+  .tips {
+    grid-template-columns: 1fr;
+    gap: var(--space-4);
+  }
+}
+
+@media (max-width: 768px) {
+  .container {
+    padding: var(--mobile-padding);
+  }
+  
+  .headerTop {
+    flex-direction: column;
+    gap: var(--space-4);
+    align-items: stretch;
+  }
+  
+  .headerInfo {
+    margin: 0;
+    order: 1;
+  }
+  
+  .headerActions {
+    order: 3;
+    justify-content: center;
+  }
+  
+  .headerInfo h1 {
+    font-size: var(--font-size-2xl);
+  }
+  
+  .categoryTabs {
+    flex-direction: column;
+    gap: var(--space-2);
+  }
+  
+  .categoryTab {
+    justify-content: center;
+    padding: var(--space-4);
+  }
+  
+  .searchBar {
+    flex-direction: column;
+    gap: var(--space-3);
+  }
+  
+  .filtersGrid {
+    grid-template-columns: 1fr;
+    gap: var(--space-3);
+  }
+  
+  .filterActions {
+    grid-column: 1;
+    justify-content: stretch;
+    flex-direction: column;
+    gap: var(--space-2);
+  }
+  
+  .tasksGrid {
+    grid-template-columns: 1fr;
+    gap: var(--space-4);
+  }
+  
+  .stats {
+    grid-template-columns: 1fr;
+    gap: var(--space-3);
+  }
+  
+  .stat {
+    flex-direction: column;
+    text-align: center;
+    gap: var(--space-2);
+  }
+  
+  .categoryMeta {
+    flex-direction: column;
+    gap: var(--space-2);
+  }
+  
+  .languageToggle {
+    bottom: var(--space-4);
+    right: var(--space-4);
+  }
+}
+
+@media (max-width: 640px) {
+  .header {
+    padding: var(--space-4);
+  }
+  
+  .resultsHeader,
+  .businessStats,
+  .businessTips {
+    padding: var(--space-4);
+  }
+  
+  .emptyContent {
+    padding: var(--space-6);
+  }
+  
+  .workerBadge {
+    flex-direction: column;
+    gap: var(--space-1);
+    text-align: center;
+  }
+  
+  .businessFocus {
+    display: block;
+  }
+}
+
+/* Loading States */
+.loading {
+  opacity: 0.7;
+  pointer-events: none;
+}
+
+.taskCardLoading {
+  background: linear-gradient(90deg, transparent, rgba(0, 102, 255, 0.1), transparent);
+  background-size: 200% 100%;
+  animation: shimmer 1.5s infinite;
+}
+
+@keyframes shimmer {
+  0% {
+    background-position: -200% 0;
+  }
+  100% {
+    background-position: 200% 0;
+  }
+}
+
+/* Accessibility */
+@media (prefers-reduced-motion: reduce) {
+  .taskCard,
+  .categoryTab {
+    transition: none;
+  }
+  
+  .taskCard:hover {
+    transform: none;
+  }
+  
+  .taskCardLoading {
+    animation: none;
+  }
+}
+
+/* High contrast mode */
+@media (prefers-contrast: high) {
+  .taskCard,
+  .filtersPanel,
+  .businessStats,
+  .businessTips {
+    border-width: 3px;
+  }
+  
+  .categoryTab {
+    border-width: 2px;
+  }
+  
+  .categoryTab.active {
+    border-width: 3px;
+  }
+}
+
+/* Print styles */
+@media print {
+  .languageToggle,
+  .searchSection,
+  .filterActions {
+    display: none;
+  }
+  
+  .tasksGrid {
+    grid-template-columns: 1fr;
+  }
+  
+  .taskCard:hover {
+    transform: none;
+    box-shadow: none;
+  }
+}

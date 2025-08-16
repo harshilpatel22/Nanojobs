@@ -1,0 +1,314 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    
+    <!-- Basic Meta Tags -->
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, user-scalable=yes" />
+    <meta name="description" content="NanoJobs - India's premier micro-task platform. Earn money instantly with 1-3 hour tasks. From data entry to web development, find flexible work opportunities." />
+    <meta name="keywords" content="micro tasks, gig economy, freelance work, part-time jobs, work from home, earn money online, India jobs, flexible work" />
+    <meta name="author" content="NanoJobs Team" />
+    <meta name="robots" content="index, follow" />
+    
+    <!-- Open Graph Meta Tags for Social Sharing -->
+    <meta property="og:title" content="NanoJobs - Micro-Task Platform for India" />
+    <meta property="og:description" content="Earn money instantly with 1-3 hour flexible tasks. Join India's growing gig economy." />
+    <meta property="og:type" content="website" />
+    <meta property="og:url" content="https://nanojobs.in" />
+    <meta property="og:image" content="/og-image.jpg" />
+    <meta property="og:image:width" content="1200" />
+    <meta property="og:image:height" content="630" />
+    <meta property="og:site_name" content="NanoJobs" />
+    <meta property="og:locale" content="en_IN" />
+    
+    <!-- Twitter Card Meta Tags -->
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content="NanoJobs - Micro-Task Platform for India" />
+    <meta name="twitter:description" content="Earn money instantly with 1-3 hour flexible tasks. Join India's growing gig economy." />
+    <meta name="twitter:image" content="/twitter-card.jpg" />
+    <meta name="twitter:creator" content="@nanojobs_in" />
+    
+    <!-- PWA Meta Tags -->
+    <meta name="theme-color" content="#0066FF" />
+    <meta name="mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="default" />
+    <meta name="apple-mobile-web-app-title" content="NanoJobs" />
+    <meta name="application-name" content="NanoJobs" />
+    <meta name="msapplication-TileColor" content="#0066FF" />
+    <meta name="msapplication-config" content="/browserconfig.xml" />
+    
+    <!-- Favicon and Icons -->
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png" />
+    <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png" />
+    <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png" />
+    <link rel="mask-icon" href="/safari-pinned-tab.svg" color="#0066FF" />
+    
+    <!-- PWA Manifest -->
+    <link rel="manifest" href="/manifest.json" />
+    
+    <!-- Preconnect to External Resources -->
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    
+    <!-- Preload Critical Resources -->
+    <link rel="preload" href="/fonts/Inter-Regular.woff2" as="font" type="font/woff2" crossorigin />
+    <link rel="preload" href="/fonts/Inter-Medium.woff2" as="font" type="font/woff2" crossorigin />
+    <link rel="preload" href="/fonts/Inter-SemiBold.woff2" as="font" type="font/woff2" crossorigin />
+    
+    <!-- DNS Prefetch for API Calls -->
+    <link rel="dns-prefetch" href="//api.nanojobs.in" />
+    <link rel="dns-prefetch" href="//cdn.nanojobs.in" />
+    
+    <!-- Title -->
+    <title>NanoJobs - Micro-Task Platform for India | Earn Money Instantly</title>
+    
+    <!-- Google Fonts - Inter -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
+    
+    <!-- Critical CSS - Inline for performance -->
+    <style>
+        /* Critical rendering path CSS */
+        * {
+            box-sizing: border-box;
+        }
+        
+        html {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            line-height: 1.5;
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+        }
+        
+        body {
+            margin: 0;
+            padding: 0;
+            background-color: #F8F9FA;
+            color: #1A1A1A;
+            min-height: 100vh;
+        }
+        
+        #root {
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+        
+        /* Loading screen styles */
+        .loading-screen {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: #F8F9FA;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            z-index: 9999;
+        }
+        
+        .loading-spinner {
+            width: 40px;
+            height: 40px;
+            border: 3px solid #E5E7EB;
+            border-top: 3px solid #0066FF;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+        
+        .loading-text {
+            margin-top: 16px;
+            color: #6B7280;
+            font-size: 14px;
+            font-weight: 500;
+        }
+        
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        
+        /* Hide loading screen when React app loads */
+        .app-loaded .loading-screen {
+            display: none;
+        }
+        
+        /* Accessibility - Focus visible polyfill */
+        .js-focus-visible :focus:not(.focus-visible) {
+            outline: none;
+        }
+        
+        .js-focus-visible .focus-visible {
+            outline: 2px solid #0066FF;
+            outline-offset: 2px;
+            border-radius: 4px;
+        }
+        
+        /* High contrast mode support */
+        @media (prefers-contrast: high) {
+            body {
+                background-color: white;
+                color: black;
+            }
+        }
+        
+        /* Reduced motion support */
+        @media (prefers-reduced-motion: reduce) {
+            .loading-spinner {
+                animation: none;
+                border-top-color: #0066FF;
+            }
+        }
+        
+        /* Mobile optimizations */
+        @media (max-width: 640px) {
+            html {
+                -webkit-text-size-adjust: 100%;
+                -ms-text-size-adjust: 100%;
+            }
+            
+            body {
+                -webkit-tap-highlight-color: transparent;
+            }
+        }
+    </style>
+    
+    <!-- Structured Data for SEO -->
+    <script type="application/ld+json">
+    {
+        "@context": "https://schema.org",
+        "@type": "WebApplication",
+        "name": "NanoJobs",
+        "description": "India's premier micro-task platform for flexible work opportunities",
+        "url": "https://nanojobs.in",
+        "applicationCategory": "BusinessApplication",
+        "operatingSystem": "Any",
+        "offers": {
+            "@type": "Offer",
+            "price": "0",
+            "priceCurrency": "INR",
+            "description": "Free to join and start earning"
+        },
+        "creator": {
+            "@type": "Organization",
+            "name": "NanoJobs Team",
+            "url": "https://nanojobs.in"
+        },
+        "featureList": [
+            "Micro-task marketplace",
+            "AI-powered skill assessment",
+            "Instant payments",
+            "Flexible working hours",
+            "Progressive skill development"
+        ]
+    }
+    </script>
+</head>
+
+<body>
+    <!-- Skip to main content link for accessibility -->
+    <a href="#main-content" class="skip-link" style="position: absolute; top: -40px; left: 6px; background: #0066FF; color: white; padding: 8px; border-radius: 4px; text-decoration: none; z-index: 10000;">
+        Skip to main content
+    </a>
+    
+    <!-- App root element -->
+    <div id="root">
+        <!-- Loading screen shown before React app loads -->
+        <div class="loading-screen">
+            <div class="loading-spinner"></div>
+            <div class="loading-text">Loading NanoJobs...</div>
+        </div>
+    </div>
+    
+    <!-- Main content region for screen readers -->
+    <div id="main-content" style="display: none;"></div>
+    
+    <!-- No JavaScript fallback -->
+    <noscript>
+        <div style="padding: 2rem; text-align: center; max-width: 600px; margin: 2rem auto; font-family: Inter, sans-serif;">
+            <h1 style="color: #E53E3E; margin-bottom: 1rem;">JavaScript Required</h1>
+            <p style="color: #6B7280; margin-bottom: 1.5rem; line-height: 1.5;">
+                NanoJobs requires JavaScript to run. Please enable JavaScript in your browser settings and refresh the page.
+            </p>
+            <p style="color: #6B7280; font-size: 14px;">
+                If you're having trouble, try updating your browser or contact our support team.
+            </p>
+        </div>
+    </noscript>
+    
+    <!-- Environment Variables for Frontend -->
+    <script>
+        // Pass environment variables to frontend
+        window.ENV = {
+            NODE_ENV: '%NODE_ENV%',
+            API_URL: '%VITE_API_URL%',
+            APP_VERSION: '%VITE_APP_VERSION%'
+        };
+    </script>
+    
+    <!-- Focus-visible polyfill for better accessibility -->
+    <script>
+        // Simple focus-visible polyfill
+        (function() {
+            var hadKeyboardEvent = false;
+            var keyboardThrottleTimeout = null;
+            
+            function onKeyDown(e) {
+                if (e.metaKey || e.altKey || e.ctrlKey) return;
+                hadKeyboardEvent = true;
+                clearTimeout(keyboardThrottleTimeout);
+                keyboardThrottleTimeout = setTimeout(function() {
+                    hadKeyboardEvent = false;
+                }, 100);
+            }
+            
+            function onFocus(e) {
+                if (hadKeyboardEvent || e.target.matches(':focus-visible')) {
+                    e.target.classList.add('focus-visible');
+                }
+            }
+            
+            function onBlur(e) {
+                e.target.classList.remove('focus-visible');
+            }
+            
+            document.addEventListener('keydown', onKeyDown, true);
+            document.addEventListener('focus', onFocus, true);
+            document.addEventListener('blur', onBlur, true);
+            document.body.classList.add('js-focus-visible');
+        })();
+    </script>
+    
+    <!-- App initialization script -->
+    <script>
+        // Performance monitoring
+        if (window.performance && window.performance.mark) {
+            window.performance.mark('app-start');
+        }
+        
+        // Remove loading screen once React app is ready
+        window.addEventListener('load', function() {
+            setTimeout(function() {
+                document.body.classList.add('app-loaded');
+            }, 100);
+        });
+        
+        // Error tracking for unhandled errors
+        window.addEventListener('error', function(e) {
+            console.error('Global error:', e.error);
+            // In production, send to error tracking service
+        });
+        
+        // Log app information
+        console.log('🚀 NanoJobs - Micro-Task Platform for India');
+        console.log('📱 Optimized for mobile-first experience');
+        console.log('🇮🇳 Built for India\'s next 500M internet users');
+    </script>
+    
+    <!-- Vite development script will be injected here -->
+    <script type="module" src="/src/main.jsx"></script>
+</body>
+</html>

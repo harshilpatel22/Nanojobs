@@ -1,0 +1,28 @@
+{
+  "name": "Testies",
+  "phone": "9876543211",
+  "email": "test@example2.com",
+  "educationLevel": "graduate",
+  "availableHours": 4,
+  "previousWork": "Some previous work experience",
+  "trialTaskResults": [
+    {
+      "taskId": "trial_data_entry_1",
+      "taskTitle": "Data Entry Trial",
+      "submittedWork": {
+        "entry_0_name": "John Smith",
+        "entry_0_phone": "9876543210",
+        "entry_0_email": "john@example.com",
+        "entry_0_city": "Mumbai"
+      },
+      "timeSpent": 12,
+      "evaluation": {
+        "passed": true,
+        "accuracyScore": 92,
+        "speedScore": 85,
+        "qualityScore": 88,
+        "feedback": "Excellent work!"
+      }
+    }
+  ]
+}

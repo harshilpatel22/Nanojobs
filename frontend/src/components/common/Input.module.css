@@ -1,0 +1,435 @@
+/**
+ * Input Component Styles
+ * Comprehensive input styling with variants, sizes, and states
+ */
+
+/* Container */
+.container {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-1);
+  }
+  
+  .container--full-width {
+    width: 100%;
+  }
+  
+  /* Label */
+  .label {
+    font-size: var(--font-size-sm);
+    font-weight: var(--font-weight-medium);
+    color: var(--text-primary);
+    line-height: var(--line-height-tight);
+    margin-bottom: var(--space-1);
+  }
+  
+  .required {
+    color: var(--error);
+    margin-left: var(--space-1);
+  }
+  
+  /* Input wrapper */
+  .inputWrapper {
+    position: relative;
+    display: flex;
+    align-items: center;
+  }
+  
+  /* Base input styles */
+  .input {
+    width: 100%;
+    border: 1px solid var(--border);
+    border-radius: var(--radius-md);
+    font-family: var(--font-sans);
+    font-size: var(--font-size-base);
+    color: var(--text-primary);
+    background-color: var(--background-white);
+    transition: var(--transition-colors), var(--transition-shadow);
+    outline: none;
+  }
+  
+  .input::placeholder {
+    color: var(--text-muted);
+  }
+  
+  /* Input sizes */
+  .input--sm {
+    height: var(--input-height-sm);
+    padding: 0 var(--space-3);
+    font-size: var(--font-size-sm);
+  }
+  
+  .input--md {
+    height: var(--input-height);
+    padding: 0 var(--space-4);
+    font-size: var(--font-size-base);
+  }
+  
+  .input--lg {
+    height: var(--input-height-lg);
+    padding: 0 var(--space-5);
+    font-size: var(--font-size-lg);
+  }
+  
+  /* Input variants */
+  .input--default {
+    background-color: var(--background-white);
+    border-color: var(--border);
+  }
+  
+  .input--filled {
+    background-color: var(--background-gray);
+    border-color: transparent;
+  }
+  
+  .input--outline {
+    background-color: transparent;
+    border-width: 2px;
+    border-color: var(--border-dark);
+  }
+  
+  /* Input states */
+  .input:focus,
+  .input--focused {
+    border-color: var(--primary);
+    box-shadow: var(--focus-ring);
+  }
+  
+  .input--error {
+    border-color: var(--error);
+  }
+  
+  .input--error:focus {
+    border-color: var(--error);
+    box-shadow: var(--focus-ring-error);
+  }
+  
+  .input--success {
+    border-color: var(--success);
+  }
+  
+  .input--success:focus {
+    border-color: var(--success);
+    box-shadow: var(--focus-ring-success);
+  }
+  
+  .input--disabled {
+    background-color: var(--background-gray);
+    color: var(--text-muted);
+    cursor: not-allowed;
+    opacity: 0.6;
+  }
+  
+  .input--readonly {
+    background-color: var(--background-gray);
+    cursor: default;
+  }
+  
+  /* Input with icons */
+  .input--with-left-icon {
+    padding-left: var(--space-10);
+  }
+  
+  .input--with-right-icon {
+    padding-right: var(--space-10);
+  }
+  
+  .input--sm.input--with-left-icon {
+    padding-left: var(--space-8);
+  }
+  
+  .input--sm.input--with-right-icon {
+    padding-right: var(--space-8);
+  }
+  
+  .input--lg.input--with-left-icon {
+    padding-left: var(--space-12);
+  }
+  
+  .input--lg.input--with-right-icon {
+    padding-right: var(--space-12);
+  }
+  
+  /* Icons */
+  .leftIcon,
+  .rightIcon {
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+    color: var(--text-muted);
+    pointer-events: none;
+    z-index: 1;
+  }
+  
+  .leftIcon {
+    left: var(--space-3);
+  }
+  
+  .rightIcon {
+    right: var(--space-3);
+  }
+  
+  .input--sm + .leftIcon {
+    left: var(--space-2);
+  }
+  
+  .input--sm + .rightIcon {
+    right: var(--space-2);
+  }
+  
+  .input--lg + .leftIcon {
+    left: var(--space-4);
+  }
+  
+  .input--lg + .rightIcon {
+    right: var(--space-4);
+  }
+  
+  /* Status icons */
+  .statusIcon {
+    position: absolute;
+    right: var(--space-3);
+    top: 50%;
+    transform: translateY(-50%);
+    z-index: 2;
+  }
+  
+  .input--error ~ .statusIcon {
+    color: var(--error);
+  }
+  
+  .input--success ~ .statusIcon {
+    color: var(--success);
+  }
+  
+  /* Password toggle button */
+  .passwordToggle {
+    background: none;
+    border: none;
+    padding: var(--space-1);
+    color: var(--text-muted);
+    cursor: pointer;
+    border-radius: var(--radius-sm);
+    transition: var(--transition-colors);
+    pointer-events: auto;
+  }
+  
+  .passwordToggle:hover {
+    color: var(--text-secondary);
+    background-color: var(--background-gray);
+  }
+  
+  .passwordToggle:focus {
+    outline: 2px solid var(--primary);
+    outline-offset: 1px;
+  }
+  
+  /* Messages */
+  .errorMessage {
+    font-size: var(--font-size-sm);
+    color: var(--error);
+    margin-top: var(--space-1);
+    display: flex;
+    align-items: center;
+    gap: var(--space-1);
+  }
+  
+  .successMessage {
+    font-size: var(--font-size-sm);
+    color: var(--success);
+    margin-top: var(--space-1);
+    display: flex;
+    align-items: center;
+    gap: var(--space-1);
+  }
+  
+  .hint {
+    font-size: var(--font-size-sm);
+    color: var(--text-muted);
+    margin-top: var(--space-1);
+  }
+  
+  /* Character count */
+  .characterCount {
+    font-size: var(--font-size-xs);
+    color: var(--text-muted);
+    text-align: right;
+    margin-top: var(--space-1);
+  }
+  
+  .characterCount[data-over-limit="true"] {
+    color: var(--error);
+  }
+  
+  /* Floating label variant */
+  .input--floating {
+    padding-top: var(--space-5);
+    padding-bottom: var(--space-2);
+  }
+  
+  .floatingLabel {
+    position: absolute;
+    left: var(--space-4);
+    top: 50%;
+    transform: translateY(-50%);
+    color: var(--text-muted);
+    font-size: var(--font-size-base);
+    pointer-events: none;
+    transition: all var(--transition-normal);
+    background-color: var(--background-white);
+    padding: 0 var(--space-1);
+  }
+  
+  .input--floating:focus ~ .floatingLabel,
+  .input--floating:not(:placeholder-shown) ~ .floatingLabel {
+    top: 0;
+    font-size: var(--font-size-xs);
+    color: var(--primary);
+    transform: translateY(0);
+  }
+  
+  /* Search input variant */
+  .input--search {
+    border-radius: var(--radius-full);
+    padding-left: var(--space-10);
+    background-color: var(--background-gray);
+    border-color: transparent;
+  }
+  
+  .input--search:focus {
+    background-color: var(--background-white);
+    border-color: var(--primary);
+  }
+  
+  /* Textarea styles */
+  .textarea {
+    min-height: 80px;
+    padding: var(--space-3) var(--space-4);
+    resize: vertical;
+    line-height: var(--line-height-relaxed);
+  }
+  
+  .textarea--sm {
+    min-height: 60px;
+    padding: var(--space-2) var(--space-3);
+  }
+  
+  .textarea--lg {
+    min-height: 120px;
+    padding: var(--space-4) var(--space-5);
+  }
+  
+  /* Select input styles */
+  .select {
+    cursor: pointer;
+    padding-right: var(--space-8);
+    background-image: url("data:image/svg+xml;charset=utf-8,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3E%3Cpath stroke='%236B7280' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='M6 8l4 4 4-4'/%3E%3C/svg%3E");
+    background-position: right var(--space-3) center;
+    background-repeat: no-repeat;
+    background-size: 16px;
+    appearance: none;
+  }
+  
+  /* Mobile optimizations */
+  @media (max-width: 640px) {
+    .input {
+      font-size: 16px; /* Prevent zoom on iOS */
+    }
+    
+    .input--sm {
+      height: 44px; /* Minimum touch target */
+      font-size: 16px;
+    }
+    
+    .input--md {
+      height: 48px;
+      font-size: 16px;
+    }
+    
+    .input--lg {
+      height: 52px;
+      font-size: 16px;
+    }
+    
+    .label {
+      font-size: var(--font-size-base);
+    }
+    
+    .errorMessage,
+    .successMessage,
+    .hint {
+      font-size: var(--font-size-base);
+    }
+    
+    /* Better spacing on mobile */
+    .container {
+      gap: var(--space-2);
+    }
+  }
+  
+  /* High contrast mode */
+  @media (prefers-contrast: high) {
+    .input {
+      border-width: 2px;
+    }
+    
+    .input:focus {
+      border-width: 3px;
+    }
+    
+    .input--outline {
+      border-width: 3px;
+    }
+    
+    .input--outline:focus {
+      border-width: 4px;
+    }
+  }
+  
+  /* Reduced motion */
+  @media (prefers-reduced-motion: reduce) {
+    .input,
+    .floatingLabel {
+      transition: none;
+    }
+  }
+  
+  /* Dark mode support */
+  @media (prefers-color-scheme: dark) {
+    .input {
+      background-color: var(--background-white);
+      border-color: var(--border-dark);
+      color: var(--text-primary);
+    }
+    
+    .input--filled {
+      background-color: var(--background-gray);
+    }
+    
+    .input--disabled,
+    .input--readonly {
+      background-color: var(--background-gray);
+    }
+    
+    .floatingLabel {
+      background-color: var(--background-white);
+    }
+    
+    .passwordToggle:hover {
+      background-color: rgba(255, 255, 255, 0.1);
+    }
+  }
+  
+  /* Print styles */
+  @media print {
+    .input {
+      border: 1px solid #000;
+      background: white;
+      color: black;
+    }
+    
+    .passwordToggle,
+    .statusIcon {
+      display: none;
+    }
+  }

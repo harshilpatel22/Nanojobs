@@ -1,0 +1,732 @@
+/**
+ * Enhanced Employer Registration Styles
+ * Modern, professional design with smooth interactions
+ */
+
+.container {
+  min-height: 100vh;
+  background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
+  display: flex;
+  flex-direction: column;
+}
+
+/* Enhanced Header */
+.header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 20px 24px;
+  background: white;
+  border-bottom: 1px solid #e2e8f0;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+  position: sticky;
+  top: 0;
+  z-index: 100;
+}
+
+.backButton {
+  color: #64748b !important;
+  border: 1px solid #e2e8f0 !important;
+  background: white !important;
+  transition: all 0.2s ease !important;
+}
+
+.backButton:hover {
+  background: #f8fafc !important;
+  border-color: #cbd5e1 !important;
+}
+
+.progressSection {
+  flex: 1;
+  display: flex;
+  justify-content: center;
+}
+
+.stepIndicators {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.stepIndicator {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  color: #94a3b8;
+  font-size: 14px;
+  font-weight: 500;
+  transition: color 0.3s ease;
+}
+
+.stepIndicator.active {
+  color: #0066FF;
+}
+
+.stepNumber {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  background: #f1f5f9;
+  color: #64748b;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 600;
+  font-size: 14px;
+  transition: all 0.3s ease;
+}
+
+.stepIndicator.active .stepNumber {
+  background: linear-gradient(135deg, #0066FF 0%, #4f46e5 100%);
+  color: white;
+  box-shadow: 0 4px 15px rgba(0, 102, 255, 0.3);
+}
+
+.stepConnector {
+  width: 40px;
+  height: 2px;
+  background: #e2e8f0;
+  margin: 0 8px;
+}
+
+/* Hero Section */
+.hero {
+  background: linear-gradient(135deg, #0066FF 0%, #4f46e5 100%);
+  padding: 48px 24px;
+  color: white;
+  text-align: center;
+  position: relative;
+  overflow: hidden;
+}
+
+.hero::before {
+  content: '';
+  position: absolute;
+  top: -50%;
+  right: -20%;
+  width: 400px;
+  height: 400px;
+  background: radial-gradient(circle, rgba(255, 255, 255, 0.1) 0%, transparent 70%);
+  border-radius: 50%;
+}
+
+.heroContent {
+  max-width: 600px;
+  margin: 0 auto;
+  position: relative;
+  z-index: 1;
+}
+
+.heroIcon {
+  display: inline-flex;
+  padding: 16px;
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 20px;
+  margin-bottom: 24px;
+  backdrop-filter: blur(10px);
+}
+
+.heroTitle {
+  font-size: 36px;
+  font-weight: 700;
+  margin: 0 0 16px 0;
+  line-height: 1.2;
+}
+
+.heroSubtitle {
+  font-size: 18px;
+  opacity: 0.9;
+  margin: 0 0 32px 0;
+  line-height: 1.5;
+}
+
+.trustIndicators {
+  display: flex;
+  justify-content: center;
+  gap: 32px;
+  margin-top: 24px;
+}
+
+.trustItem {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 14px;
+  font-weight: 500;
+  opacity: 0.9;
+}
+
+/* Main Content */
+.content {
+  display: flex;
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 48px 24px;
+  gap: 48px;
+  width: 100%;
+}
+
+.formSection {
+  flex: 2;
+  max-width: 600px;
+}
+
+.registrationCard {
+  background: white;
+  border-radius: 20px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+  border: 1px solid #e2e8f0;
+  padding: 32px;
+}
+
+.step {
+  display: flex;
+  flex-direction: column;
+  gap: 32px;
+  animation: slideIn 0.3s ease-out;
+}
+
+.stepHeader {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding-bottom: 24px;
+  border-bottom: 1px solid #f1f5f9;
+}
+
+.stepIcon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 56px;
+  height: 56px;
+  background: linear-gradient(135deg, #0066FF 0%, #4f46e5 100%);
+  border-radius: 16px;
+  color: white;
+  box-shadow: 0 4px 15px rgba(0, 102, 255, 0.2);
+}
+
+.stepTitle h2 {
+  font-size: 24px;
+  font-weight: 700;
+  color: #1a202c;
+  margin: 0 0 4px 0;
+}
+
+.stepTitle p {
+  font-size: 16px;
+  color: #64748b;
+  margin: 0;
+}
+
+.formFields {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+
+.inputGroup {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.fieldLabel {
+  font-size: 16px;
+  font-weight: 600;
+  color: #1a202c;
+  margin-bottom: 12px;
+}
+
+/* Enhanced Employer Type Cards */
+.employerTypes {
+  display: grid;
+  gap: 16px;
+}
+
+.employerTypeCard {
+  padding: 20px;
+  border: 2px solid #e2e8f0;
+  border-radius: 16px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  background: white;
+  position: relative;
+  overflow: hidden;
+}
+
+.employerTypeCard::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 4px;
+  background: linear-gradient(90deg, #0066FF 0%, #4f46e5 100%);
+  transform: scaleX(0);
+  transition: transform 0.3s ease;
+}
+
+.employerTypeCard:hover::before {
+  transform: scaleX(1);
+}
+
+.employerTypeCard:hover {
+  border-color: #0066FF;
+  box-shadow: 0 8px 25px rgba(0, 102, 255, 0.15);
+  transform: translateY(-2px);
+}
+
+.employerTypeCard.selected {
+  border-color: #0066FF;
+  background: linear-gradient(135deg, rgba(0, 102, 255, 0.05) 0%, rgba(79, 70, 229, 0.05) 100%);
+  box-shadow: 0 8px 25px rgba(0, 102, 255, 0.2);
+}
+
+.employerTypeCard.selected::before {
+  transform: scaleX(1);
+}
+
+.cardHeader {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 12px;
+}
+
+.cardHeader h4 {
+  font-size: 18px;
+  font-weight: 600;
+  color: #1a202c;
+  margin: 0;
+}
+
+.cardDescription {
+  color: #64748b;
+  margin: 0 0 16px 0;
+  line-height: 1.5;
+}
+
+.cardFeatures {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.feature {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 14px;
+  color: #0066FF;
+}
+
+.feature span {
+  color: #64748b;
+}
+
+/* Radio Buttons */
+.radioButton {
+  width: 20px;
+  height: 20px;
+  border: 2px solid #cbd5e1;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s ease;
+  flex-shrink: 0;
+}
+
+.employerTypeCard.selected .radioButton,
+.volumeCard.selected .radioButton {
+  border-color: #0066FF;
+  background: #0066FF;
+}
+
+.radioInner {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: white;
+  opacity: 0;
+  transition: opacity 0.2s ease;
+}
+
+.employerTypeCard.selected .radioInner,
+.volumeCard.selected .radioInner {
+  opacity: 1;
+}
+
+/* Form Controls */
+.textarea {
+  width: 100%;
+  min-height: 120px;
+  padding: 16px;
+  border: 2px solid #e2e8f0;
+  border-radius: 12px;
+  font-family: inherit;
+  font-size: 16px;
+  color: #1a202c;
+  background: white;
+  resize: vertical;
+  transition: all 0.2s ease;
+}
+
+.textarea:focus {
+  outline: none;
+  border-color: #0066FF;
+  box-shadow: 0 0 0 4px rgba(0, 102, 255, 0.1);
+}
+
+.textarea::placeholder {
+  color: #94a3b8;
+}
+
+.characterCount {
+  font-size: 14px;
+  color: #94a3b8;
+  text-align: right;
+}
+
+.select {
+  width: 100%;
+  padding: 16px;
+  border: 2px solid #e2e8f0;
+  border-radius: 12px;
+  font-family: inherit;
+  font-size: 16px;
+  color: #1a202c;
+  background: white;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.select:focus {
+  outline: none;
+  border-color: #0066FF;
+  box-shadow: 0 0 0 4px rgba(0, 102, 255, 0.1);
+}
+
+/* Volume Selection */
+.volumeOptions {
+  display: grid;
+  gap: 16px;
+}
+
+.volumeCard {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding: 20px;
+  border: 2px solid #e2e8f0;
+  border-radius: 16px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  background: white;
+}
+
+.volumeCard:hover {
+  border-color: #0066FF;
+  box-shadow: 0 4px 15px rgba(0, 102, 255, 0.1);
+  transform: translateY(-1px);
+}
+
+.volumeCard.selected {
+  border-color: #0066FF;
+  background: linear-gradient(135deg, rgba(0, 102, 255, 0.05) 0%, rgba(79, 70, 229, 0.05) 100%);
+  box-shadow: 0 4px 15px rgba(0, 102, 255, 0.2);
+}
+
+.volumeIcon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 48px;
+  height: 48px;
+  background: #f1f5f9;
+  border-radius: 12px;
+  color: #0066FF;
+  transition: all 0.3s ease;
+}
+
+.volumeCard.selected .volumeIcon {
+  background: linear-gradient(135deg, #0066FF 0%, #4f46e5 100%);
+  color: white;
+}
+
+.volumeContent {
+  flex: 1;
+}
+
+.volumeContent h4 {
+  font-size: 16px;
+  font-weight: 600;
+  color: #1a202c;
+  margin: 0 0 4px 0;
+}
+
+.volumeSubtitle {
+  font-size: 14px;
+  color: #0066FF;
+  font-weight: 500;
+  margin-bottom: 4px;
+}
+
+.volumeDescription {
+  font-size: 14px;
+  color: #64748b;
+}
+
+.volumeSelector {
+  flex-shrink: 0;
+}
+
+/* Error States */
+.error {
+  font-size: 14px;
+  color: #ef4444;
+  margin-top: 8px;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+/* Actions */
+.actions {
+  display: flex;
+  gap: 16px;
+  margin-top: 32px;
+  padding-top: 24px;
+  border-top: 1px solid #f1f5f9;
+}
+
+.secondaryAction {
+  flex: 1;
+  border: 2px solid #e2e8f0 !important;
+  color: #64748b !important;
+  background: white !important;
+  padding: 12px 24px !important;
+  border-radius: 12px !important;
+  font-weight: 600 !important;
+  transition: all 0.2s ease !important;
+}
+
+.secondaryAction:hover {
+  border-color: #cbd5e1 !important;
+  background: #f8fafc !important;
+}
+
+.primaryAction {
+  flex: 2;
+  background: linear-gradient(135deg, #0066FF 0%, #4f46e5 100%) !important;
+  border: none !important;
+  color: white !important;
+  padding: 16px 32px !important;
+  border-radius: 12px !important;
+  font-weight: 600 !important;
+  font-size: 16px !important;
+  box-shadow: 0 4px 15px rgba(0, 102, 255, 0.3) !important;
+  transition: all 0.2s ease !important;
+}
+
+.primaryAction:hover {
+  transform: translateY(-2px) !important;
+  box-shadow: 0 8px 25px rgba(0, 102, 255, 0.4) !important;
+}
+
+/* Benefits Section */
+.benefitsSection {
+  flex: 1;
+  display: flex;
+  align-items: flex-start;
+}
+
+.benefits {
+  background: white;
+  border-radius: 20px;
+  padding: 32px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+  border: 1px solid #e2e8f0;
+  position: sticky;
+  top: 120px;
+}
+
+.benefitsHeader {
+  text-align: center;
+  margin-bottom: 32px;
+  color: #0066FF;
+}
+
+.benefitsHeader h3 {
+  font-size: 24px;
+  font-weight: 700;
+  color: #1a202c;
+  margin: 16px 0 8px 0;
+}
+
+.benefitsHeader p {
+  color: #64748b;
+  margin: 0;
+}
+
+.benefitsList {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+  margin-bottom: 32px;
+}
+
+.benefit {
+  display: flex;
+  gap: 16px;
+}
+
+.benefitIcon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 48px;
+  height: 48px;
+  background: linear-gradient(135deg, rgba(0, 102, 255, 0.1) 0%, rgba(79, 70, 229, 0.1) 100%);
+  border-radius: 12px;
+  color: #0066FF;
+  flex-shrink: 0;
+}
+
+.benefitContent h4 {
+  font-size: 16px;
+  font-weight: 600;
+  color: #1a202c;
+  margin: 0 0 8px 0;
+}
+
+.benefitContent p {
+  font-size: 14px;
+  color: #64748b;
+  margin: 0;
+  line-height: 1.5;
+}
+
+/* Social Proof */
+.socialProof {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 16px;
+  padding: 24px 0 0 0;
+  border-top: 1px solid #f1f5f9;
+}
+
+.proofItem {
+  text-align: center;
+}
+
+.proofNumber {
+  display: block;
+  font-size: 24px;
+  font-weight: 700;
+  color: #0066FF;
+  margin-bottom: 4px;
+}
+
+.proofLabel {
+  font-size: 12px;
+  color: #64748b;
+  font-weight: 500;
+}
+
+/* Animations */
+@keyframes slideIn {
+  from {
+    opacity: 0;
+    transform: translateX(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+/* Mobile Responsive */
+@media (max-width: 768px) {
+  .header {
+    padding: 16px;
+  }
+  
+  .stepIndicators {
+    gap: 8px;
+  }
+  
+  .stepIndicator span {
+    display: none;
+  }
+  
+  .hero {
+    padding: 32px 16px;
+  }
+  
+  .heroTitle {
+    font-size: 28px;
+  }
+  
+  .heroSubtitle {
+    font-size: 16px;
+  }
+  
+  .trustIndicators {
+    flex-direction: column;
+    gap: 16px;
+    align-items: center;
+  }
+  
+  .content {
+    flex-direction: column;
+    padding: 24px 16px;
+    gap: 32px;
+  }
+  
+  .registrationCard {
+    padding: 24px;
+  }
+  
+  .stepHeader {
+    flex-direction: column;
+    text-align: center;
+    gap: 12px;
+  }
+  
+  .actions {
+    flex-direction: column;
+  }
+  
+  .benefits {
+    position: static;
+  }
+  
+  .socialProof {
+    grid-template-columns: 1fr;
+    gap: 12px;
+  }
+}
+
+@media (max-width: 480px) {
+  .employerTypes {
+    gap: 12px;
+  }
+  
+  .employerTypeCard {
+    padding: 16px;
+  }
+  
+  .volumeOptions {
+    gap: 12px;
+  }
+  
+  .volumeCard {
+    padding: 16px;
+  }
+  
+  .heroTitle {
+    font-size: 24px;
+  }
+}

@@ -1,0 +1,220 @@
+/**
+ * RatingModal Component Styles
+ * Clean modal design for rating submission
+ */
+
+.modalOverlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+  padding: 20px;
+}
+
+.modal {
+  background: white;
+  border-radius: 12px;
+  box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+  width: 100%;
+  max-width: 500px;
+  max-height: 90vh;
+  overflow-y: auto;
+}
+
+.header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 24px 24px 16px 24px;
+  border-bottom: 1px solid #e5e7eb;
+}
+
+.title {
+  font-size: 20px;
+  font-weight: 600;
+  color: #111827;
+  margin: 0;
+}
+
+.closeButton {
+  background: none;
+  border: none;
+  font-size: 24px;
+  color: #6b7280;
+  cursor: pointer;
+  padding: 4px;
+  border-radius: 4px;
+  transition: all 0.2s ease;
+}
+
+.closeButton:hover {
+  color: #374151;
+  background: #f3f4f6;
+}
+
+.closeButton:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.content {
+  padding: 24px;
+}
+
+.taskInfo {
+  text-align: center;
+  margin-bottom: 32px;
+}
+
+.taskTitle {
+  font-size: 18px;
+  font-weight: 600;
+  color: #111827;
+  margin: 0 0 12px 0;
+}
+
+.ratingPrompt {
+  font-size: 16px;
+  color: #6b7280;
+  margin: 0;
+}
+
+.partyName {
+  font-weight: 600;
+  color: #2563eb;
+}
+
+.ratingSection {
+  text-align: center;
+  margin-bottom: 24px;
+}
+
+.ratingDescription {
+  margin-top: 12px;
+  font-size: 16px;
+  font-weight: 600;
+  color: #059669;
+}
+
+.ratingGuidelines {
+  background: #f9fafb;
+  padding: 16px;
+  border-radius: 8px;
+  margin-bottom: 24px;
+}
+
+.ratingGuidelines h4 {
+  font-size: 14px;
+  font-weight: 600;
+  color: #374151;
+  margin: 0 0 12px 0;
+}
+
+.ratingGuidelines ul {
+  margin: 0;
+  padding: 0 0 0 16px;
+  list-style: none;
+}
+
+.ratingGuidelines li {
+  font-size: 13px;
+  color: #6b7280;
+  margin-bottom: 4px;
+  position: relative;
+}
+
+.ratingGuidelines li::before {
+  content: "•";
+  color: #d1d5db;
+  position: absolute;
+  left: -12px;
+}
+
+.ratingGuidelines strong {
+  color: #374151;
+}
+
+.footer {
+  display: flex;
+  justify-content: flex-end;
+  gap: 12px;
+  padding: 16px 24px 24px 24px;
+  border-top: 1px solid #e5e7eb;
+}
+
+.cancelButton,
+.submitButton {
+  min-width: 100px;
+}
+
+/* Responsive design */
+@media (max-width: 640px) {
+  .modalOverlay {
+    padding: 16px;
+  }
+  
+  .modal {
+    max-height: 95vh;
+  }
+  
+  .header {
+    padding: 20px 20px 16px 20px;
+  }
+  
+  .title {
+    font-size: 18px;
+  }
+  
+  .content {
+    padding: 20px;
+  }
+  
+  .taskTitle {
+    font-size: 16px;
+  }
+  
+  .ratingPrompt {
+    font-size: 14px;
+  }
+  
+  .footer {
+    padding: 16px 20px 20px 20px;
+    flex-direction: column;
+  }
+  
+  .cancelButton,
+  .submitButton {
+    width: 100%;
+    min-width: unset;
+  }
+}
+
+/* Animation */
+.modal {
+  animation: modalSlideIn 0.3s ease-out;
+}
+
+@keyframes modalSlideIn {
+  from {
+    opacity: 0;
+    transform: scale(0.95) translateY(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1) translateY(0);
+  }
+}
+
+/* Focus management */
+.closeButton:focus,
+.submitButton:focus,
+.cancelButton:focus {
+  outline: 2px solid #2563eb;
+  outline-offset: 2px;
+}

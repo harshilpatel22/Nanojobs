@@ -1,0 +1,567 @@
+/* UPISetupModal.module.css */
+
+.modalOverlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0.7);
+    backdrop-filter: blur(8px);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: var(--z-modal);
+    padding: var(--space-4);
+    animation: fadeIn 0.3s ease-out;
+  }
+  
+  .modalContent {
+    background: rgba(255, 255, 255, 0.95);
+    backdrop-filter: blur(20px);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    border-radius: var(--radius-2xl);
+    box-shadow: 
+      0 20px 25px -5px rgba(0, 0, 0, 0.1),
+      0 10px 10px -5px rgba(0, 0, 0, 0.04),
+      0 0 0 1px rgba(255, 255, 255, 0.1);
+    width: 100%;
+    max-width: 520px;
+    max-height: 90vh;
+    overflow: hidden;
+    animation: slideUp 0.3s ease-out;
+    position: relative;
+  }
+  
+  .modalHeader {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: var(--space-6);
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    background: linear-gradient(135deg, 
+      rgba(0, 102, 255, 0.1) 0%, 
+      rgba(255, 107, 53, 0.05) 100%);
+  }
+  
+  .headerContent {
+    display: flex;
+    align-items: center;
+    gap: var(--space-3);
+  }
+  
+  .headerIcon {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 48px;
+    height: 48px;
+    background: linear-gradient(135deg, var(--primary), var(--primary-light));
+    border-radius: var(--radius-lg);
+    color: white;
+    box-shadow: 0 4px 12px rgba(0, 102, 255, 0.3);
+  }
+  
+  .headerText h2 {
+    margin: 0;
+    font-size: var(--font-size-xl);
+    font-weight: var(--font-weight-semibold);
+    color: var(--text-primary);
+  }
+  
+  .headerText p {
+    margin: var(--space-1) 0 0 0;
+    font-size: var(--font-size-sm);
+    color: var(--text-secondary);
+  }
+  
+  /* Step Indicator */
+  .stepIndicator {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: var(--space-6) var(--space-6) var(--space-4);
+    gap: var(--space-2);
+  }
+  
+  .stepIndicatorContainer {
+    display: flex;
+    align-items: center;
+    gap: var(--space-2);
+  }
+  
+  .stepCircle {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 32px;
+    height: 32px;
+    border-radius: var(--radius-full);
+    font-size: var(--font-size-sm);
+    font-weight: var(--font-weight-medium);
+    transition: all var(--transition-normal);
+  }
+  
+  .stepCircle.active {
+    background: var(--primary);
+    color: white;
+    box-shadow: 0 0 0 4px rgba(0, 102, 255, 0.2);
+    transform: scale(1.1);
+  }
+  
+  .stepCircle.completed {
+    background: var(--success);
+    color: white;
+  }
+  
+  .stepCircle.inactive {
+    background: rgba(255, 255, 255, 0.5);
+    color: var(--text-secondary);
+    border: 2px solid rgba(255, 255, 255, 0.3);
+  }
+  
+  .stepLine {
+    width: 40px;
+    height: 2px;
+    border-radius: var(--radius-full);
+    transition: all var(--transition-normal);
+  }
+  
+  .stepLine.completed {
+    background: var(--success);
+  }
+  
+  .stepLine.inactive {
+    background: rgba(255, 255, 255, 0.3);
+  }
+  
+  /* Modal Body */
+  .modalBody {
+    padding: var(--space-6);
+    max-height: 60vh;
+    overflow-y: auto;
+  }
+  
+  .step {
+    animation: slideInRight 0.4s ease-out;
+  }
+  
+  .stepHeader {
+    text-align: center;
+    margin-bottom: var(--space-6);
+  }
+  
+  .stepHeader svg {
+    color: var(--primary);
+    margin-bottom: var(--space-2);
+  }
+  
+  .stepHeader h3 {
+    margin: 0;
+    font-size: var(--font-size-2xl);
+    font-weight: var(--font-weight-semibold);
+    color: var(--text-primary);
+  }
+  
+  .stepHeader p {
+    margin: var(--space-2) 0 0 0;
+    font-size: var(--font-size-base);
+    color: var(--text-secondary);
+  }
+  
+  /* Bank Selection */
+  .bankGrid {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: var(--space-3);
+    margin-bottom: var(--space-6);
+  }
+  
+  .bankCard {
+    display: flex;
+    align-items: center;
+    gap: var(--space-4);
+    padding: var(--space-4);
+    background: rgba(255, 255, 255, 0.8);
+    border: 2px solid rgba(255, 255, 255, 0.3);
+    border-radius: var(--radius-lg);
+    cursor: pointer;
+    transition: all var(--transition-normal);
+    backdrop-filter: blur(10px);
+  }
+  
+  .bankCard:hover {
+    border-color: var(--primary);
+    background: rgba(255, 255, 255, 0.9);
+    transform: translateY(-2px);
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
+  }
+  
+  .bankIcon {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 48px;
+    height: 48px;
+    background: linear-gradient(135deg, var(--primary), var(--primary-light));
+    border-radius: var(--radius-md);
+    color: white;
+  }
+  
+  .bankInfo {
+    flex: 1;
+  }
+  
+  .bankInfo h4 {
+    margin: 0;
+    font-size: var(--font-size-base);
+    font-weight: var(--font-weight-medium);
+    color: var(--text-primary);
+  }
+  
+  .bankInfo p {
+    margin: var(--space-1) 0 0 0;
+    font-size: var(--font-size-sm);
+    color: var(--text-secondary);
+    font-family: var(--font-mono);
+  }
+  
+  .bankArrow {
+    color: var(--text-muted);
+    transition: all var(--transition-fast);
+  }
+  
+  .bankCard:hover .bankArrow {
+    color: var(--primary);
+    transform: translateX(4px);
+  }
+  
+  /* Trust Indicators */
+  .trustIndicators {
+    display: flex;
+    justify-content: center;
+    gap: var(--space-6);
+    padding: var(--space-4);
+    background: rgba(0, 200, 150, 0.1);
+    border-radius: var(--radius-lg);
+    border: 1px solid rgba(0, 200, 150, 0.2);
+  }
+  
+  .trustItem {
+    display: flex;
+    align-items: center;
+    gap: var(--space-2);
+    font-size: var(--font-size-sm);
+    color: var(--success-dark);
+    font-weight: var(--font-weight-medium);
+  }
+  
+  .trustItem svg {
+    color: var(--success);
+  }
+  
+  /* Form Section */
+  .formSection {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-4);
+    margin-bottom: var(--space-6);
+  }
+  
+  .selectedBank {
+    display: flex;
+    align-items: center;
+    gap: var(--space-3);
+    padding: var(--space-4);
+    background: rgba(0, 102, 255, 0.1);
+    border: 1px solid rgba(0, 102, 255, 0.2);
+    border-radius: var(--radius-lg);
+  }
+  
+  .selectedBank svg {
+    color: var(--primary);
+  }
+  
+  .selectedBank div {
+    flex: 1;
+  }
+  
+  .selectedBank h4 {
+    margin: 0;
+    font-size: var(--font-size-base);
+    font-weight: var(--font-weight-medium);
+    color: var(--text-primary);
+  }
+  
+  .selectedBank p {
+    margin: var(--space-1) 0 0 0;
+    font-size: var(--font-size-sm);
+    color: var(--text-secondary);
+  }
+  
+  .amountInfo {
+    display: flex;
+    align-items: center;
+    gap: var(--space-2);
+    padding: var(--space-3);
+    background: rgba(255, 184, 0, 0.1);
+    border: 1px solid rgba(255, 184, 0, 0.2);
+    border-radius: var(--radius-md);
+    font-size: var(--font-size-sm);
+    color: var(--warning-dark);
+  }
+  
+  .amountInfo svg {
+    color: var(--warning);
+  }
+  
+  /* Step Actions */
+  .stepActions {
+    display: flex;
+    gap: var(--space-3);
+    justify-content: space-between;
+  }
+  
+  .stepActions button {
+    flex: 1;
+  }
+  
+  /* Success Step */
+  .successStep {
+    text-align: center;
+  }
+  
+  .successIcon {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 80px;
+    height: 80px;
+    margin: 0 auto var(--space-4);
+    background: linear-gradient(135deg, var(--success), var(--success-light));
+    border-radius: var(--radius-full);
+    color: white;
+    animation: celebrationPulse 2s infinite;
+  }
+  
+  .successStep h3 {
+    margin: 0;
+    font-size: var(--font-size-2xl);
+    font-weight: var(--font-weight-bold);
+    color: var(--text-primary);
+    margin-bottom: var(--space-2);
+  }
+  
+  .successStep > p {
+    margin: 0 0 var(--space-6) 0;
+    font-size: var(--font-size-base);
+    color: var(--text-secondary);
+  }
+  
+  /* Mandate Card */
+  .mandateCard {
+    margin-bottom: var(--space-6);
+    background: rgba(255, 255, 255, 0.9);
+    border: 1px solid rgba(255, 255, 255, 0.3);
+  }
+  
+  .mandateDetails {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-3);
+  }
+  
+  .mandateRow {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: var(--space-2) 0;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+  }
+  
+  .mandateRow:last-child {
+    border-bottom: none;
+  }
+  
+  .mandateRow span:first-child {
+    font-size: var(--font-size-sm);
+    color: var(--text-secondary);
+    font-weight: var(--font-weight-medium);
+  }
+  
+  .mandateRow code {
+    font-family: var(--font-mono);
+    font-size: var(--font-size-sm);
+    color: var(--primary);
+    background: rgba(0, 102, 255, 0.1);
+    padding: var(--space-1) var(--space-2);
+    border-radius: var(--radius-sm);
+    border: 1px solid rgba(0, 102, 255, 0.2);
+  }
+  
+  .statusActive {
+    color: var(--success);
+    font-weight: var(--font-weight-medium);
+    display: flex;
+    align-items: center;
+    gap: var(--space-1);
+  }
+  
+  .statusActive::before {
+    content: '';
+    width: 8px;
+    height: 8px;
+    background: var(--success);
+    border-radius: var(--radius-full);
+    animation: statusPulse 2s infinite;
+  }
+  
+  /* Benefits List */
+  .benefitsList {
+    text-align: left;
+    margin-bottom: var(--space-6);
+  }
+  
+  .benefitsList h4 {
+    margin: 0 0 var(--space-3) 0;
+    font-size: var(--font-size-base);
+    font-weight: var(--font-weight-medium);
+    color: var(--text-primary);
+  }
+  
+  .benefitsList ul {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-2);
+  }
+  
+  .benefitsList li {
+    display: flex;
+    align-items: flex-start;
+    gap: var(--space-2);
+    font-size: var(--font-size-sm);
+    color: var(--text-secondary);
+    line-height: var(--line-height-relaxed);
+  }
+  
+  .benefitsList li svg {
+    color: var(--success);
+    margin-top: 2px;
+    flex-shrink: 0;
+  }
+  
+  .continueButton {
+    background: linear-gradient(135deg, var(--primary), var(--primary-light)) !important;
+    box-shadow: 0 8px 25px rgba(0, 102, 255, 0.3);
+  }
+  
+  /* Loading Overlay */
+  .loadingOverlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(255, 255, 255, 0.9);
+    backdrop-filter: blur(4px);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 10;
+  }
+  
+  /* Animations */
+  @keyframes fadeIn {
+    from {
+      opacity: 0;
+    }
+    to {
+      opacity: 1;
+    }
+  }
+  
+  @keyframes slideUp {
+    from {
+      opacity: 0;
+      transform: translateY(20px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+  
+  @keyframes slideInRight {
+    from {
+      opacity: 0;
+      transform: translateX(20px);
+    }
+    to {
+      opacity: 1;
+      transform: translateX(0);
+    }
+  }
+  
+  @keyframes celebrationPulse {
+    0%, 100% {
+      transform: scale(1);
+      box-shadow: 0 0 0 0 rgba(0, 200, 150, 0.4);
+    }
+    50% {
+      transform: scale(1.05);
+      box-shadow: 0 0 0 20px rgba(0, 200, 150, 0);
+    }
+  }
+  
+  @keyframes statusPulse {
+    0%, 100% {
+      opacity: 1;
+    }
+    50% {
+      opacity: 0.5;
+    }
+  }
+  
+  /* Mobile Responsiveness */
+  @media (max-width: 640px) {
+    .modalOverlay {
+      padding: var(--space-2);
+    }
+    
+    .modalContent {
+      max-height: 95vh;
+    }
+    
+    .modalHeader {
+      padding: var(--space-4);
+    }
+    
+    .modalBody {
+      padding: var(--space-4);
+    }
+    
+    .trustIndicators {
+      flex-direction: column;
+      gap: var(--space-2);
+      text-align: center;
+    }
+    
+    .stepActions {
+      flex-direction: column;
+    }
+    
+    .stepActions button {
+      width: 100%;
+    }
+    
+    .bankCard {
+      padding: var(--space-3);
+    }
+    
+    .headerText h2 {
+      font-size: var(--font-size-lg);
+    }
+  }

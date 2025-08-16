@@ -1,0 +1,540 @@
+/**
+ * Modern Worker Dashboard Styles
+ * Clean, functional, and aesthetically pleasing design
+ */
+
+.container {
+  min-height: 100vh;
+  background: #f8fafc;
+  padding: 24px;
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+/* Header */
+.header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 32px;
+  background: white;
+  padding: 20px 24px;
+  border-radius: 16px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+  border: 1px solid #e2e8f0;
+}
+
+.greeting {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.botAvatar {
+  flex-shrink: 0;
+}
+
+.greetingText h1 {
+  font-size: 24px;
+  font-weight: 700;
+  color: #1a202c;
+  margin: 0 0 4px 0;
+  line-height: 1.2;
+}
+
+.greetingText p {
+  color: #64748b;
+  margin: 0;
+  font-size: 16px;
+}
+
+.logoutButton {
+  border: 1px solid #e2e8f0 !important;
+  color: #64748b !important;
+  background: white !important;
+}
+
+.logoutButton:hover {
+  background: #f8fafc !important;
+  border-color: #cbd5e1 !important;
+}
+
+/* Hero Stats */
+.heroStats {
+  background: linear-gradient(135deg, #0066FF 0%, #4f46e5 100%);
+  border-radius: 20px;
+  padding: 32px;
+  margin-bottom: 24px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  color: white;
+  box-shadow: 0 10px 25px rgba(0, 102, 255, 0.2);
+}
+
+.mainStat {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+}
+
+.mainStatIcon {
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 16px;
+  padding: 16px;
+  backdrop-filter: blur(10px);
+}
+
+.mainStatContent {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.mainStatValue {
+  font-size: 48px;
+  font-weight: 800;
+  line-height: 1;
+  margin-bottom: 8px;
+}
+
+.mainStatLabel {
+  font-size: 18px;
+  opacity: 0.9;
+  font-weight: 500;
+}
+
+.mainStatTrend {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  opacity: 0.8;
+  font-size: 14px;
+}
+
+.quickStats {
+  display: flex;
+  gap: 32px;
+}
+
+.quickStat {
+  text-align: center;
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 12px;
+  padding: 16px;
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  min-width: 80px;
+}
+
+.quickStatValue {
+  font-size: 24px;
+  font-weight: 700;
+  margin-bottom: 4px;
+  line-height: 1;
+}
+
+.quickStatLabel {
+  font-size: 12px;
+  opacity: 0.8;
+  font-weight: 500;
+}
+
+/* Profile Card */
+.profileCard {
+  background: white;
+  border-radius: 16px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+  border: 1px solid #e2e8f0;
+  margin-bottom: 24px;
+}
+
+.profileHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 24px;
+}
+
+.profileInfo {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.avatar {
+  width: 56px;
+  height: 56px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #0066FF 0%, #4f46e5 100%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: white;
+  flex-shrink: 0;
+}
+
+.userDetails h3 {
+  font-size: 20px;
+  font-weight: 600;
+  color: #1a202c;
+  margin: 0 0 4px 0;
+}
+
+.userDetails p {
+  color: #64748b;
+  margin: 0;
+  font-size: 14px;
+}
+
+.badgeContainer {
+  flex-shrink: 0;
+}
+
+.badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 16px;
+  border-radius: 24px;
+  font-size: 14px;
+  font-weight: 600;
+  border: 2px solid;
+}
+
+.levelProgress {
+  margin-bottom: 24px;
+}
+
+.progressInfo {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 8px;
+}
+
+.progressLabel {
+  font-size: 14px;
+  font-weight: 500;
+  color: #64748b;
+}
+
+.progressPercent {
+  font-size: 14px;
+  font-weight: 600;
+  color: #0066FF;
+}
+
+.progressBar {
+  height: 8px;
+  background: #f1f5f9;
+  border-radius: 4px;
+  overflow: hidden;
+  margin-bottom: 8px;
+}
+
+.progressFill {
+  height: 100%;
+  background: linear-gradient(90deg, #0066FF 0%, #4f46e5 100%);
+  border-radius: 4px;
+  transition: width 0.3s ease;
+}
+
+.progressNote {
+  font-size: 12px;
+  color: #94a3b8;
+  font-style: italic;
+}
+
+.skillsSection h4 {
+  font-size: 16px;
+  font-weight: 600;
+  color: #1a202c;
+  margin: 0 0 12px 0;
+}
+
+.skillsList {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.skillTag {
+  background: #f1f5f9;
+  color: #475569;
+  padding: 6px 12px;
+  border-radius: 16px;
+  font-size: 13px;
+  font-weight: 500;
+  border: 1px solid #e2e8f0;
+}
+
+/* Stats Grid */
+.statsGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 16px;
+  margin-bottom: 24px;
+}
+
+.statCard {
+  background: white;
+  border-radius: 16px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+  border: 1px solid #e2e8f0;
+  transition: all 0.2s ease;
+}
+
+.statCard:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.08);
+}
+
+.statHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 16px;
+}
+
+.statIcon {
+  width: 40px;
+  height: 40px;
+  border-radius: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.earningsIcon {
+  background: #dcfce7;
+  color: #22c55e;
+}
+
+.tasksIcon {
+  background: #dbeafe;
+  color: #3b82f6;
+}
+
+.ratingIcon {
+  background: #fef3c7;
+  color: #f59e0b;
+}
+
+.streakIcon {
+  background: #fee2e2;
+  color: #ef4444;
+}
+
+.statTrend {
+  color: #22c55e;
+  font-size: 12px;
+  font-weight: 600;
+  background: #dcfce7;
+  padding: 4px 8px;
+  border-radius: 12px;
+}
+
+.statBadge {
+  color: #f59e0b;
+}
+
+.statValue {
+  font-size: 28px;
+  font-weight: 700;
+  color: #1a202c;
+  line-height: 1;
+  margin-bottom: 4px;
+}
+
+.statLabel {
+  color: #64748b;
+  font-size: 14px;
+  font-weight: 500;
+}
+
+/* Action Card */
+.actionCard {
+  background: white;
+  border-radius: 16px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+  border: 1px solid #e2e8f0;
+  margin-bottom: 24px;
+}
+
+.actionHeader {
+  text-align: center;
+  margin-bottom: 24px;
+}
+
+.actionHeader h2 {
+  font-size: 24px;
+  font-weight: 700;
+  color: #1a202c;
+  margin: 0 0 8px 0;
+}
+
+.actionHeader p {
+  color: #64748b;
+  font-size: 16px;
+  margin: 0;
+}
+
+.actionButtons {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  align-items: center;
+}
+
+.primaryAction {
+  background: linear-gradient(135deg, #0066FF 0%, #4f46e5 100%) !important;
+  border: none !important;
+  padding: 16px 32px !important;
+  font-size: 16px !important;
+  font-weight: 600 !important;
+  border-radius: 12px !important;
+  display: flex !important;
+  align-items: center !important;
+  gap: 8px !important;
+  transition: all 0.2s ease !important;
+  box-shadow: 0 4px 15px rgba(0, 102, 255, 0.3) !important;
+}
+
+.primaryAction:hover {
+  transform: translateY(-2px) !important;
+  box-shadow: 0 8px 25px rgba(0, 102, 255, 0.4) !important;
+}
+
+.actionStats {
+  display: flex;
+  gap: 24px;
+}
+
+.actionStat {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  color: #64748b;
+  font-size: 14px;
+  background: #f8fafc;
+  padding: 8px 12px;
+  border-radius: 8px;
+  border: 1px solid #e2e8f0;
+}
+
+/* Quick Actions */
+.quickActions {
+  margin-bottom: 24px;
+}
+
+.quickActions h3 {
+  font-size: 18px;
+  font-weight: 600;
+  color: #1a202c;
+  margin: 0 0 16px 0;
+}
+
+.quickActionGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+  gap: 12px;
+}
+
+.quickActionItem {
+  background: white;
+  border: 1px solid #e2e8f0;
+  border-radius: 12px;
+  padding: 16px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  color: #64748b;
+}
+
+.quickActionItem:hover {
+  background: #f8fafc;
+  border-color: #cbd5e1;
+  color: #475569;
+  transform: translateY(-1px);
+}
+
+.quickActionItem span {
+  font-size: 14px;
+  font-weight: 500;
+}
+
+/* Animations */
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.container > * {
+  animation: fadeIn 0.3s ease forwards;
+}
+
+/* Mobile Responsive */
+@media (max-width: 768px) {
+  .container {
+    padding: 16px;
+  }
+  
+  .header {
+    flex-direction: column;
+    gap: 16px;
+    text-align: center;
+  }
+  
+  .heroStats {
+    flex-direction: column;
+    gap: 24px;
+    text-align: center;
+  }
+  
+  .mainStat {
+    flex-direction: column;
+    gap: 16px;
+  }
+  
+  .quickStats {
+    gap: 16px;
+  }
+  
+  .profileHeader {
+    flex-direction: column;
+    gap: 16px;
+    text-align: center;
+  }
+  
+  .statsGrid {
+    grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+    gap: 12px;
+  }
+  
+  .actionStats {
+    flex-direction: column;
+    gap: 12px;
+  }
+  
+  .quickActionGrid {
+    grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+  }
+  
+  .mainStatValue {
+    font-size: 36px;
+  }
+}
+
+@media (max-width: 480px) {
+  .statsGrid {
+    grid-template-columns: 1fr 1fr;
+  }
+  
+  .quickActionGrid {
+    grid-template-columns: 1fr 1fr 1fr;
+  }
+}

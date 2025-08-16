@@ -1,0 +1,418 @@
+/**
+ * Card Component Styles
+ * Flexible card component with multiple variants and layouts
+ */
+
+/* Base card styles */
+.card {
+    display: flex;
+    flex-direction: column;
+    background-color: var(--background-white);
+    border-radius: var(--radius-lg);
+    transition: var(--transition-shadow), var(--transition-transform);
+    position: relative;
+    overflow: hidden;
+  }
+  
+  /* Card variants */
+  .card--default {
+    border: 1px solid var(--border);
+    box-shadow: var(--shadow-sm);
+  }
+  
+  .card--elevated {
+    border: none;
+    box-shadow: var(--shadow-md);
+  }
+  
+  .card--outlined {
+    border: 2px solid var(--border);
+    box-shadow: none;
+  }
+  
+  .card--flat {
+    border: none;
+    box-shadow: none;
+    background-color: transparent;
+  }
+  
+  /* Padding variants */
+  .card--padding-none {
+    padding: 0;
+  }
+  
+  .card--padding-sm {
+    padding: var(--space-3);
+  }
+  
+  .card--padding-md {
+    padding: var(--space-4);
+  }
+  
+  .card--padding-lg {
+    padding: var(--space-6);
+  }
+  
+  /* Hover effects */
+  .card--hover:hover {
+    box-shadow: var(--shadow-lg);
+    transform: translateY(-2px);
+  }
+  
+  .card--outlined.card--hover:hover {
+    border-color: var(--primary-light);
+    box-shadow: var(--shadow-md);
+  }
+  
+  /* Clickable cards */
+  .card--clickable {
+    cursor: pointer;
+  }
+  
+  .card--clickable:focus {
+    outline: none;
+    box-shadow: var(--focus-ring), var(--shadow-md);
+  }
+  
+  .card--clickable:active {
+    transform: translateY(1px);
+  }
+  
+  /* Card sections */
+  .header {
+    border-bottom: 1px solid var(--border);
+    margin-bottom: var(--space-4);
+    padding-bottom: var(--space-4);
+  }
+  
+  .content {
+    flex: 1;
+  }
+  
+  .footer {
+    border-top: 1px solid var(--border);
+    margin-top: var(--space-4);
+    padding-top: var(--space-4);
+  }
+  
+  /* Remove borders for cards with no padding */
+  .card--padding-none .header {
+    border-bottom: none;
+    margin-bottom: 0;
+    padding-bottom: 0;
+  }
+  
+  .card--padding-none .footer {
+    border-top: none;
+    margin-top: 0;
+    padding-top: 0;
+  }
+  
+  /* Card header component */
+  .cardHeader {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: var(--space-4);
+  }
+  
+  .cardHeaderContent {
+    flex: 1;
+    min-width: 0; /* Allow text truncation */
+  }
+  
+  .cardHeaderAction {
+    flex-shrink: 0;
+  }
+  
+  .cardTitle {
+    font-size: var(--font-size-lg);
+    font-weight: var(--font-weight-semibold);
+    color: var(--text-primary);
+    margin: 0 0 var(--space-1) 0;
+    line-height: var(--line-height-tight);
+  }
+  
+  .cardSubtitle {
+    font-size: var(--font-size-sm);
+    color: var(--text-secondary);
+    margin: 0;
+    line-height: var(--line-height-normal);
+  }
+  
+  /* Card footer component */
+  .cardFooter {
+    display: flex;
+    align-items: center;
+    gap: var(--space-3);
+  }
+  
+  .cardFooter--left {
+    justify-content: flex-start;
+  }
+  
+  .cardFooter--center {
+    justify-content: center;
+  }
+  
+  .cardFooter--right {
+    justify-content: flex-end;
+  }
+  
+  .cardFooter--between {
+    justify-content: space-between;
+  }
+  
+  /* Card body component */
+  .cardBody {
+    line-height: var(--line-height-relaxed);
+    color: var(--text-secondary);
+  }
+  
+  /* Special card variants */
+  .card--success {
+    border-left: 4px solid var(--success);
+  }
+  
+  .card--warning {
+    border-left: 4px solid var(--warning);
+  }
+  
+  .card--error {
+    border-left: 4px solid var(--error);
+  }
+  
+  .card--info {
+    border-left: 4px solid var(--primary);
+  }
+  
+  /* Card with image */
+  .card--image {
+    padding: 0;
+  }
+  
+  .card--image .content {
+    padding: var(--space-4);
+  }
+  
+  .cardImage {
+    width: 100%;
+    height: 200px;
+    object-fit: cover;
+    display: block;
+  }
+  
+  /* Badge cards */
+  .card--badge {
+    text-align: center;
+    padding: var(--space-6) var(--space-4);
+  }
+  
+  .card--badge .cardTitle {
+    font-size: var(--font-size-xl);
+    margin-bottom: var(--space-2);
+  }
+  
+  /* Task card specific styles */
+  .card--task {
+    border: 1px solid var(--border);
+    transition: all var(--transition-normal);
+  }
+  
+  .card--task:hover {
+    border-color: var(--primary-light);
+    box-shadow: var(--shadow-lg);
+    transform: translateY(-1px);
+  }
+  
+  .card--task .cardTitle {
+    color: var(--primary);
+  }
+  
+  /* Stat card styles */
+  .card--stat {
+    text-align: center;
+    padding: var(--space-5);
+  }
+  
+  .statValue {
+    font-size: var(--font-size-3xl);
+    font-weight: var(--font-weight-bold);
+    color: var(--primary);
+    margin: 0;
+    line-height: 1;
+  }
+  
+  .statLabel {
+    font-size: var(--font-size-sm);
+    color: var(--text-secondary);
+    margin: var(--space-1) 0 0 0;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+  }
+  
+  /* Loading state */
+  .card--loading {
+    pointer-events: none;
+    opacity: 0.7;
+  }
+  
+  .card--loading::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 3px;
+    background: linear-gradient(
+      90deg,
+      transparent,
+      var(--primary),
+      transparent
+    );
+    animation: cardLoading 1.5s infinite;
+  }
+  
+  @keyframes cardLoading {
+    0% {
+      transform: translateX(-100%);
+    }
+    100% {
+      transform: translateX(200%);
+    }
+  }
+  
+  /* Grid layouts for multiple cards */
+  .cardGrid {
+    display: grid;
+    gap: var(--space-4);
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  }
+  
+  .cardGrid--sm {
+    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+    gap: var(--space-3);
+  }
+  
+  .cardGrid--lg {
+    grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+    gap: var(--space-6);
+  }
+  
+  /* Mobile optimizations */
+  @media (max-width: 640px) {
+    .card {
+      border-radius: var(--radius-md);
+    }
+    
+    .card--padding-md {
+      padding: var(--space-3);
+    }
+    
+    .card--padding-lg {
+      padding: var(--space-4);
+    }
+    
+    .cardHeader {
+      flex-direction: column;
+      align-items: flex-start;
+      gap: var(--space-2);
+    }
+    
+    .cardTitle {
+      font-size: var(--font-size-base);
+    }
+    
+    .cardSubtitle {
+      font-size: var(--font-size-xs);
+    }
+    
+    .cardFooter {
+      flex-direction: column;
+      align-items: stretch;
+      gap: var(--space-2);
+    }
+    
+    .cardFooter--right,
+    .cardFooter--left,
+    .cardFooter--center {
+      justify-content: stretch;
+    }
+    
+    .cardGrid {
+      grid-template-columns: 1fr;
+      gap: var(--space-3);
+    }
+    
+    .statValue {
+      font-size: var(--font-size-2xl);
+    }
+    
+    /* Better touch targets on mobile */
+    .card--clickable {
+      min-height: 44px;
+    }
+  }
+  
+  /* High contrast mode */
+  @media (prefers-contrast: high) {
+    .card {
+      border-width: 2px;
+    }
+    
+    .card--outlined {
+      border-width: 3px;
+    }
+    
+    .header,
+    .footer {
+      border-width: 2px;
+    }
+  }
+  
+  /* Reduced motion */
+  @media (prefers-reduced-motion: reduce) {
+    .card {
+      transition: none;
+    }
+    
+    .card--hover:hover,
+    .card--clickable:active {
+      transform: none;
+    }
+    
+    .card--loading::after {
+      animation: none;
+    }
+  }
+  
+  /* Dark mode support */
+  @media (prefers-color-scheme: dark) {
+    .card {
+      background-color: var(--background-white);
+      border-color: var(--border-dark);
+    }
+    
+    .card--flat {
+      background-color: transparent;
+    }
+    
+    .header,
+    .footer {
+      border-color: var(--border-dark);
+    }
+  }
+  
+  /* Print styles */
+  @media print {
+    .card {
+      break-inside: avoid;
+      box-shadow: none;
+      border: 1px solid #ccc;
+    }
+    
+    .card--hover:hover {
+      transform: none;
+      box-shadow: none;
+    }
+  }

@@ -1,0 +1,1248 @@
+/**
+ * Login Page Styles - Beautiful Indian Architecture Theme
+ * Implements split-screen layout with glassmorphism effects
+ * Features stunning OTP UI and smooth animations
+ */
+
+/* Main Container - Split Screen Layout */
+.container {
+  min-height: 100vh;
+  background: #0f1419;
+  display: flex;
+  position: relative;
+  overflow: hidden;
+}
+
+/* Background Elements */
+.backgroundElements {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 1;
+}
+
+.architectureBackground {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: 
+    /* Indian Palace Silhouette Effect */
+    radial-gradient(ellipse at center bottom, rgba(139, 69, 19, 0.4) 0%, transparent 70%),
+    /* Palace Domes */
+    radial-gradient(circle at 20% 70%, rgba(184, 134, 11, 0.3) 0%, transparent 25%),
+    radial-gradient(circle at 80% 75%, rgba(184, 134, 11, 0.25) 0%, transparent 20%),
+    radial-gradient(circle at 50% 80%, rgba(184, 134, 11, 0.4) 0%, transparent 30%),
+    /* Minarets */
+    linear-gradient(0deg, rgba(139, 69, 19, 0.5) 70%, transparent 90%),
+    /* Sky gradient */
+    linear-gradient(135deg, #1a1f35 0%, #2d1b4e 50%, #1a1f35 100%);
+}
+
+.architectureBackground::after {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 35%;
+  background: 
+    /* Palace Architecture Silhouette */
+    polygon(
+      0% 100%, 0% 85%, 8% 80%, 12% 85%, 18% 75%, 22% 80%, 
+      28% 65%, 32% 70%, 38% 60%, 42% 65%, 48% 55%, 52% 60%, 
+      58% 50%, 62% 55%, 68% 60%, 72% 65%, 78% 70%, 82% 75%, 
+      88% 80%, 92% 75%, 100% 80%, 100% 100%
+    );
+  clip-path: polygon(
+    0% 100%, 0% 85%, 8% 80%, 12% 85%, 18% 75%, 22% 80%, 
+    28% 65%, 32% 70%, 38% 60%, 42% 65%, 48% 55%, 52% 60%, 
+    58% 50%, 62% 55%, 68% 60%, 72% 65%, 78% 70%, 82% 75%, 
+    88% 80%, 92% 75%, 100% 80%, 100% 100%
+  );
+  background: linear-gradient(180deg, rgba(139, 69, 19, 0.7) 0%, rgba(92, 46, 13, 0.8) 100%);
+}
+
+/* Floating Elements */
+.floatingElements {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  pointer-events: none;
+  z-index: 2;
+}
+
+.floatingElement {
+  position: absolute;
+  background: rgba(255, 255, 255, 0.08);
+  backdrop-filter: blur(12px);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  border-radius: var(--radius-lg);
+  padding: var(--space-2) var(--space-3);
+  color: rgba(255, 255, 255, 0.8);
+  animation: float 8s ease-in-out infinite;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: var(--font-size-sm);
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+}
+
+.floatingElement:nth-child(1) { animation-delay: 0s; }
+.floatingElement:nth-child(2) { animation-delay: 2s; }
+.floatingElement:nth-child(3) { animation-delay: 4s; }
+.floatingElement:nth-child(4) { animation-delay: 6s; }
+
+@keyframes float {
+  0%, 100% { transform: translateY(0px) rotate(0deg); opacity: 0.6; }
+  25% { transform: translateY(-15px) rotate(1deg); opacity: 0.8; }
+  50% { transform: translateY(-8px) rotate(-0.5deg); opacity: 1; }
+  75% { transform: translateY(-12px) rotate(0.8deg); opacity: 0.7; }
+}
+
+/* Main Content */
+.content {
+  position: relative;
+  z-index: 3;
+  width: 100%;
+  max-width: 480px;
+  margin: 0 auto;
+  padding: var(--space-6) var(--space-4);
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+
+/* Header Section */
+.header {
+  text-align: center;
+  margin-bottom: var(--space-8);
+  animation: slideInFromTop 0.6s ease-out;
+}
+
+.backButton {
+  position: absolute;
+  top: var(--space-6);
+  left: var(--space-4);
+  background: rgba(255, 255, 255, 0.1);
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  border-radius: var(--radius-full);
+  width: 44px;
+  height: 44px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: rgba(255, 255, 255, 0.8);
+  cursor: pointer;
+  transition: all var(--transition-normal);
+  z-index: 4;
+}
+
+.backButton:hover {
+  background: rgba(255, 255, 255, 0.15);
+  color: white;
+  transform: translateX(-2px);
+}
+
+.logo {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-3);
+  margin-bottom: var(--space-6);
+}
+
+.logo svg {
+  color: var(--primary);
+  filter: drop-shadow(0 4px 8px rgba(0, 102, 255, 0.3));
+}
+
+.logo h1 {
+  font-size: var(--font-size-2xl);
+  font-weight: var(--font-weight-bold);
+  color: white;
+  margin: 0;
+  text-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+}
+
+.headerContent {
+  margin-bottom: var(--space-4);
+}
+
+.welcomeTitle {
+  font-size: var(--font-size-xl);
+  font-weight: var(--font-weight-bold);
+  color: white;
+  margin-bottom: var(--space-2);
+  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+}
+
+.subtitle {
+  color: rgba(255, 255, 255, 0.7);
+  font-size: var(--font-size-base);
+  line-height: var(--line-height-relaxed);
+  margin: 0;
+}
+
+/* Login Container */
+.loginContainer {
+  margin-bottom: var(--space-8);
+  animation: slideInFromBottom 0.8s ease-out 0.2s both;
+}
+
+/* Login Card - Glassmorphism */
+.loginCard {
+  background: rgba(255, 255, 255, 0.08);
+  backdrop-filter: blur(20px);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  border-radius: var(--radius-2xl);
+  box-shadow: 
+    0 24px 48px rgba(0, 0, 0, 0.2),
+    0 8px 16px rgba(0, 0, 0, 0.1),
+    inset 0 1px 0 rgba(255, 255, 255, 0.1);
+  overflow: hidden;
+  position: relative;
+}
+
+.loginCard::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+}
+
+.cardBody {
+  padding: var(--space-8);
+}
+
+/* Success Overlay */
+.successOverlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 200, 150, 0.95);
+  backdrop-filter: blur(10px);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  z-index: 10;
+  animation: successSlideIn 0.5s ease-out;
+  text-align: center;
+  color: white;
+}
+
+.successIcon {
+  margin-bottom: var(--space-4);
+  animation: successBounce 0.6s ease-out 0.2s both;
+}
+
+.successOverlay h3 {
+  font-size: var(--font-size-xl);
+  font-weight: var(--font-weight-bold);
+  margin-bottom: var(--space-2);
+  color: white;
+}
+
+.successOverlay p {
+  font-size: var(--font-size-base);
+  color: rgba(255, 255, 255, 0.9);
+  margin: 0;
+}
+
+/* Form Styles */
+.form {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-6);
+  animation: formSlideIn 0.4s ease-out;
+}
+
+/* Step Indicator */
+.stepIndicator {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-4);
+  margin-bottom: var(--space-6);
+}
+
+.stepDot {
+  width: 12px;
+  height: 12px;
+  border-radius: var(--radius-full);
+  background: rgba(255, 255, 255, 0.3);
+  transition: all var(--transition-normal);
+  position: relative;
+}
+
+.stepDot.active {
+  background: var(--primary);
+  box-shadow: 0 0 0 4px rgba(0, 102, 255, 0.2);
+  transform: scale(1.2);
+}
+
+.stepDot.completed {
+  background: var(--success);
+  box-shadow: 0 0 0 4px rgba(0, 200, 150, 0.2);
+}
+
+.stepLine {
+  width: 40px;
+  height: 2px;
+  background: rgba(255, 255, 255, 0.3);
+  transition: all var(--transition-normal);
+}
+
+.stepLine.completed {
+  background: var(--success);
+}
+
+/* Form Header */
+.formHeader {
+  text-align: center;
+  margin-bottom: var(--space-6);
+}
+
+.formIcon {
+  display: flex;
+  justify-content: center;
+  margin-bottom: var(--space-3);
+  color: var(--primary);
+}
+
+.formHeader h3 {
+  font-size: var(--font-size-xl);
+  font-weight: var(--font-weight-bold);
+  color: white;
+  margin-bottom: var(--space-2);
+}
+
+.formHeader p {
+  color: rgba(255, 255, 255, 0.7);
+  font-size: var(--font-size-sm);
+  line-height: var(--line-height-relaxed);
+  margin: 0;
+}
+
+.formHeader strong {
+  color: var(--primary);
+  font-weight: var(--font-weight-semibold);
+}
+
+/* Input Group */
+.inputGroup {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+}
+
+/* Phone Input */
+.phoneInputWrapper {
+  display: flex;
+  background: rgba(255, 255, 255, 0.08);
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  border-radius: var(--radius-xl);
+  overflow: hidden;
+  transition: all var(--transition-normal);
+  position: relative;
+}
+
+.phoneInputWrapper:focus-within {
+  border-color: var(--primary);
+  box-shadow: 0 0 0 3px rgba(0, 102, 255, 0.15);
+  background: rgba(255, 255, 255, 0.12);
+}
+
+.phoneInputWrapper.error {
+  border-color: var(--error);
+  box-shadow: 0 0 0 3px rgba(229, 62, 62, 0.15);
+  animation: shake 0.4s ease-in-out;
+}
+
+.countryCode {
+  display: flex;
+  align-items: center;
+  padding: var(--space-4) var(--space-4) var(--space-4) var(--space-5);
+  background: rgba(255, 255, 255, 0.05);
+  color: rgba(255, 255, 255, 0.8);
+  font-weight: var(--font-weight-medium);
+  font-size: var(--font-size-base);
+  border-right: 1px solid rgba(255, 255, 255, 0.1);
+  user-select: none;
+}
+
+.phoneInput {
+  flex: 1;
+  padding: var(--space-4) var(--space-5);
+  background: transparent;
+  border: none;
+  outline: none;
+  color: white;
+  font-size: var(--font-size-base);
+  font-weight: var(--font-weight-medium);
+  letter-spacing: 0.5px;
+}
+
+.phoneInput::placeholder {
+  color: rgba(255, 255, 255, 0.5);
+  font-weight: var(--font-weight-normal);
+}
+
+.phoneHint {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  font-size: var(--font-size-xs);
+  color: rgba(255, 255, 255, 0.6);
+  padding: var(--space-2) var(--space-1);
+}
+
+.phoneHint svg {
+  color: var(--success);
+}
+
+/* OTP Container */
+.otpContainer {
+  display: flex;
+  gap: var(--space-3);
+  justify-content: center;
+  margin: var(--space-4) 0;
+}
+
+.otpInput {
+  width: 48px;
+  height: 56px;
+  background: rgba(255, 255, 255, 0.08);
+  backdrop-filter: blur(10px);
+  border: 2px solid rgba(255, 255, 255, 0.15);
+  border-radius: var(--radius-lg);
+  text-align: center;
+  font-size: var(--font-size-xl);
+  font-weight: var(--font-weight-bold);
+  color: white;
+  transition: all var(--transition-normal);
+  outline: none;
+  caret-color: var(--primary);
+}
+
+.otpInput:focus {
+  border-color: var(--primary);
+  box-shadow: 
+    0 0 0 3px rgba(0, 102, 255, 0.2),
+    0 4px 12px rgba(0, 102, 255, 0.15);
+  background: rgba(255, 255, 255, 0.12);
+  transform: scale(1.05);
+}
+
+.otpInput.error {
+  border-color: var(--error);
+  box-shadow: 0 0 0 3px rgba(229, 62, 62, 0.2);
+  animation: shake 0.4s ease-in-out;
+}
+
+.otpInput:not(:placeholder-shown) {
+  background: rgba(0, 102, 255, 0.1);
+  border-color: var(--primary);
+}
+
+/* Error Message */
+.errorMessage {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  padding: var(--space-2) var(--space-3);
+  background: rgba(229, 62, 62, 0.1);
+  border: 1px solid rgba(229, 62, 62, 0.3);
+  border-radius: var(--radius-md);
+  color: #ff8a80;
+  font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-medium);
+  animation: slideInError 0.3s ease-out;
+}
+
+.errorMessage svg {
+  color: var(--error);
+  flex-shrink: 0;
+}
+
+/* OTP Actions */
+.otpActions {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-top: var(--space-4);
+  gap: var(--space-4);
+}
+
+.timerSection {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--space-2);
+}
+
+.timerDisplay {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--space-2);
+}
+
+.timerCircle {
+  position: relative;
+  width: 60px;
+  height: 60px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.circularProgress {
+  width: 100%;
+  height: 100%;
+  transform: rotate(-90deg);
+}
+
+.circleBg {
+  fill: none;
+  stroke: rgba(255, 255, 255, 0.1);
+  stroke-width: 3;
+}
+
+.circle {
+  fill: none;
+  stroke: var(--primary);
+  stroke-width: 3;
+  stroke-linecap: round;
+  transition: stroke-dasharray 1s ease-in-out;
+  filter: drop-shadow(0 0 6px rgba(0, 102, 255, 0.4));
+}
+
+.timerText {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  font-size: var(--font-size-xs);
+  font-weight: var(--font-weight-bold);
+  color: white;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
+}
+
+.timerDisplay > span {
+  font-size: var(--font-size-xs);
+  color: rgba(255, 255, 255, 0.6);
+  text-align: center;
+}
+
+.resendButton {
+  background: rgba(0, 102, 255, 0.1);
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(0, 102, 255, 0.3);
+  border-radius: var(--radius-lg);
+  padding: var(--space-2) var(--space-4);
+  color: var(--primary);
+  font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-medium);
+  cursor: pointer;
+  transition: all var(--transition-normal);
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+}
+
+.resendButton:hover:not(:disabled) {
+  background: rgba(0, 102, 255, 0.2);
+  border-color: var(--primary);
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(0, 102, 255, 0.2);
+}
+
+.resendButton:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  transform: none;
+}
+
+.changeNumber {
+  background: none;
+  border: none;
+  color: rgba(255, 255, 255, 0.6);
+  font-size: var(--font-size-sm);
+  cursor: pointer;
+  transition: all var(--transition-normal);
+  padding: var(--space-2);
+  border-radius: var(--radius-md);
+  display: flex;
+  align-items: center;
+  gap: var(--space-1);
+}
+
+.changeNumber:hover {
+  color: rgba(255, 255, 255, 0.9);
+  background: rgba(255, 255, 255, 0.05);
+}
+
+/* Submit Button */
+.submitButton {
+  background: linear-gradient(135deg, var(--primary), #0052cc);
+  border: none;
+  border-radius: var(--radius-xl);
+  padding: var(--space-4) var(--space-6);
+  color: white;
+  font-size: var(--font-size-base);
+  font-weight: var(--font-weight-semibold);
+  cursor: pointer;
+  transition: all var(--transition-normal);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-2);
+  box-shadow: 
+    0 8px 24px rgba(0, 102, 255, 0.3),
+    0 4px 8px rgba(0, 0, 0, 0.1);
+  min-height: 52px;
+  position: relative;
+  overflow: hidden;
+}
+
+.submitButton::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+  transition: left 0.6s ease;
+}
+
+.submitButton:hover:not(:disabled)::before {
+  left: 100%;
+}
+
+.submitButton:hover:not(:disabled) {
+  transform: translateY(-2px);
+  box-shadow: 
+    0 12px 32px rgba(0, 102, 255, 0.4),
+    0 6px 12px rgba(0, 0, 0, 0.15);
+}
+
+.submitButton:active {
+  transform: translateY(-1px);
+}
+
+.submitButton:disabled {
+  background: rgba(255, 255, 255, 0.1);
+  color: rgba(255, 255, 255, 0.5);
+  cursor: not-allowed;
+  transform: none;
+  box-shadow: none;
+}
+
+/* Loading Dots Animation */
+.dots {
+  display: flex;
+  gap: 3px;
+  margin-left: var(--space-2);
+}
+
+.dots span {
+  width: 4px;
+  height: 4px;
+  background: currentColor;
+  border-radius: var(--radius-full);
+  animation: dotPulse 1.4s ease-in-out infinite both;
+}
+
+.dots span:nth-child(1) { animation-delay: -0.32s; }
+.dots span:nth-child(2) { animation-delay: -0.16s; }
+.dots span:nth-child(3) { animation-delay: 0s; }
+
+@keyframes dotPulse {
+  0%, 80%, 100% { transform: scale(0.8); opacity: 0.5; }
+  40% { transform: scale(1); opacity: 1; }
+}
+
+/* Registration Section */
+.registerSection {
+  background: rgba(255, 255, 255, 0.06);
+  backdrop-filter: blur(15px);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: var(--radius-xl);
+  padding: var(--space-6);
+  margin-bottom: var(--space-6);
+  animation: slideInFromBottom 1s ease-out 0.4s both;
+}
+
+.registerText {
+  text-align: center;
+  color: white;
+  font-size: var(--font-size-base);
+  font-weight: var(--font-weight-medium);
+  margin: 0 0 var(--space-5) 0;
+}
+
+.registerOptions {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+}
+
+.registerLink {
+  display: flex;
+  align-items: center;
+  gap: var(--space-4);
+  padding: var(--space-4);
+  background: rgba(255, 255, 255, 0.05);
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: var(--radius-lg);
+  text-decoration: none;
+  transition: all var(--transition-normal);
+  color: white;
+  position: relative;
+  overflow: hidden;
+}
+
+.registerLink::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.1), transparent);
+  transition: left 0.6s ease;
+}
+
+.registerLink:hover::before {
+  left: 100%;
+}
+
+.registerLink:hover {
+  background: rgba(255, 255, 255, 0.1);
+  border-color: rgba(255, 255, 255, 0.2);
+  transform: translateY(-2px);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.2);
+}
+
+.registerIcon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 44px;
+  height: 44px;
+  background: linear-gradient(135deg, var(--primary), #0052cc);
+  border-radius: var(--radius-lg);
+  color: white;
+  flex-shrink: 0;
+}
+
+.registerContent {
+  flex: 1;
+}
+
+.registerContent strong {
+  display: block;
+  font-size: var(--font-size-base);
+  font-weight: var(--font-weight-semibold);
+  color: white;
+  margin-bottom: var(--space-1);
+}
+
+.registerContent p {
+  font-size: var(--font-size-sm);
+  color: rgba(255, 255, 255, 0.7);
+  margin: 0;
+  line-height: var(--line-height-normal);
+}
+
+.registerArrow {
+  color: rgba(255, 255, 255, 0.6);
+  transition: all var(--transition-normal);
+  flex-shrink: 0;
+}
+
+.registerLink:hover .registerArrow {
+  color: white;
+  transform: translateX(4px);
+}
+
+/* Trust Indicators */
+.trustIndicators {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: var(--space-4);
+  animation: slideInFromBottom 1.2s ease-out 0.6s both;
+}
+
+.trustItem {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  padding: var(--space-2) var(--space-3);
+  background: rgba(255, 255, 255, 0.05);
+  backdrop-filter: blur(8px);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: var(--radius-lg);
+  color: rgba(255, 255, 255, 0.8);
+  font-size: var(--font-size-xs);
+  font-weight: var(--font-weight-medium);
+}
+
+.trustItem svg {
+  color: var(--success);
+  flex-shrink: 0;
+}
+
+/* Animations */
+@keyframes slideInFromTop {
+  from {
+    opacity: 0;
+    transform: translateY(-30px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes slideInFromBottom {
+  from {
+    opacity: 0;
+    transform: translateY(30px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes formSlideIn {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes slideInError {
+  from {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes shake {
+  0%, 100% { transform: translateX(0); }
+  25% { transform: translateX(-4px); }
+  75% { transform: translateX(4px); }
+}
+
+@keyframes successSlideIn {
+  from {
+    opacity: 0;
+    transform: scale(0.9);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+@keyframes successBounce {
+  0% { transform: scale(0); }
+  50% { transform: scale(1.2); }
+  100% { transform: scale(1); }
+}
+
+/* Mobile Responsive Design */
+@media (max-width: 768px) {
+  .content {
+    padding: var(--space-4) var(--space-3);
+    justify-content: flex-start;
+    padding-top: var(--space-16);
+  }
+
+  .backButton {
+    top: var(--space-4);
+    left: var(--space-3);
+    width: 40px;
+    height: 40px;
+  }
+
+  .header {
+    margin-bottom: var(--space-6);
+  }
+
+  .logo h1 {
+    font-size: var(--font-size-xl);
+  }
+
+  .welcomeTitle {
+    font-size: var(--font-size-lg);
+  }
+
+  .cardBody {
+    padding: var(--space-6);
+  }
+
+  .otpContainer {
+    gap: var(--space-2);
+  }
+
+  .otpInput {
+    width: 42px;
+    height: 50px;
+    font-size: var(--font-size-lg);
+  }
+
+  .otpActions {
+    flex-direction: column-reverse;
+    align-items: center;
+    gap: var(--space-3);
+  }
+
+  .timerSection {
+    order: 2;
+  }
+
+  .changeNumber {
+    order: 1;
+  }
+
+  .registerSection {
+    padding: var(--space-5);
+  }
+
+  .registerLink {
+    padding: var(--space-3);
+    gap: var(--space-3);
+  }
+
+  .registerIcon {
+    width: 40px;
+    height: 40px;
+  }
+
+  .trustIndicators {
+    gap: var(--space-2);
+  }
+
+  .trustItem {
+    padding: var(--space-1) var(--space-2);
+    font-size: 11px;
+  }
+
+  /* Hide some floating elements on mobile for cleaner look */
+  .floatingElements .floatingElement:nth-child(n+3) {
+    display: none;
+  }
+}
+
+@media (max-width: 480px) {
+  .content {
+    padding: var(--space-3) var(--space-2);
+    padding-top: var(--space-12);
+  }
+
+  .logo {
+    gap: var(--space-2);
+  }
+
+  .logo h1 {
+    font-size: var(--font-size-lg);
+  }
+
+  .welcomeTitle {
+    font-size: var(--font-size-base);
+  }
+
+  .subtitle {
+    font-size: var(--font-size-sm);
+  }
+
+  .cardBody {
+    padding: var(--space-4);
+  }
+
+  .formHeader h3 {
+    font-size: var(--font-size-lg);
+  }
+
+  .otpInput {
+    width: 38px;
+    height: 46px;
+    font-size: var(--font-size-base);
+  }
+
+  .phoneInputWrapper {
+    border-radius: var(--radius-lg);
+  }
+
+  .phoneInput {
+    padding: var(--space-3) var(--space-4);
+  }
+
+  .countryCode {
+    padding: var(--space-3) var(--space-3) var(--space-3) var(--space-4);
+  }
+
+  .registerOptions {
+    gap: var(--space-2);
+  }
+
+  .registerContent strong {
+    font-size: var(--font-size-sm);
+  }
+
+  .registerContent p {
+    font-size: var(--font-size-xs);
+  }
+
+  .trustIndicators {
+    flex-direction: column;
+    align-items: center;
+    gap: var(--space-2);
+  }
+}
+
+/* Landscape mobile optimization */
+@media (max-width: 768px) and (orientation: landscape) {
+  .content {
+    padding-top: var(--space-6);
+    justify-content: center;
+  }
+
+  .header {
+    margin-bottom: var(--space-4);
+  }
+
+  .loginContainer {
+    margin-bottom: var(--space-4);
+  }
+
+  .registerSection {
+    margin-bottom: var(--space-3);
+  }
+}
+
+/* Accessibility Support */
+@media (prefers-reduced-motion: reduce) {
+  .floatingElement,
+  .loginCard,
+  .registerLink,
+  .submitButton,
+  .otpInput {
+    animation: none;
+    transition: none;
+  }
+
+  .registerLink:hover,
+  .submitButton:hover {
+    transform: none;
+  }
+
+  .dots span {
+    animation: none;
+  }
+}
+
+/* High contrast mode */
+@media (prefers-contrast: high) {
+  .loginCard {
+    background: rgba(255, 255, 255, 0.15);
+    border-color: rgba(255, 255, 255, 0.3);
+  }
+
+  .phoneInputWrapper,
+  .otpInput {
+    border-width: 2px;
+  }
+
+  .submitButton {
+    background: var(--primary);
+  }
+
+  .registerLink {
+    border-width: 2px;
+  }
+}
+
+/* Focus management for keyboard navigation */
+.phoneInput:focus,
+.otpInput:focus,
+.submitButton:focus,
+.resendButton:focus,
+.changeNumber:focus,
+.backButton:focus {
+  outline: 2px solid var(--primary);
+  outline-offset: 2px;
+}
+
+/* Loading state for inputs */
+.phoneInputWrapper.loading,
+.otpInput.loading {
+  pointer-events: none;
+  opacity: 0.7;
+}
+
+/* Success state for OTP inputs */
+.otpInput.success {
+  background: rgba(0, 200, 150, 0.1);
+  border-color: var(--success);
+  color: var(--success);
+}
+
+/* Touch device optimizations */
+@media (hover: none) {
+  .submitButton:hover,
+  .registerLink:hover,
+  .resendButton:hover {
+    transform: none;
+  }
+}
+
+/* Dark theme support (already implemented) */
+@media (prefers-color-scheme: dark) {
+  /* Colors are already optimized for dark theme */
+}
+
+/* Development Login Section */
+.devLoginSection {
+  margin-top: 2rem;
+  margin-bottom: 2rem;
+  padding: 1.5rem;
+  background: rgba(255, 255, 255, 0.02);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 12px;
+  backdrop-filter: blur(10px);
+  position: relative;
+  z-index: 2;
+}
+
+.devLoginHeader {
+  text-align: center;
+  margin-bottom: 1.5rem;
+}
+
+.devLoginHeader h4 {
+  color: #fbbf24;
+  font-size: 1.1rem;
+  font-weight: 600;
+  margin: 0 0 0.5rem 0;
+}
+
+.devLoginHeader p {
+  color: rgba(255, 255, 255, 0.7);
+  font-size: 0.875rem;
+  margin: 0;
+}
+
+.devLoginButtons {
+  display: flex;
+  gap: 1rem;
+  flex-direction: column;
+}
+
+.devLoginBtn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.75rem;
+  padding: 0.875rem 1.5rem;
+  border: none;
+  border-radius: 8px;
+  font-weight: 500;
+  font-size: 0.95rem;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  position: relative;
+  overflow: hidden;
+}
+
+.devLoginBtn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.workerBtn {
+  background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+  color: white;
+  box-shadow: 0 4px 12px rgba(16, 185, 129, 0.3);
+}
+
+.workerBtn:hover:not(:disabled) {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(16, 185, 129, 0.4);
+}
+
+.employerBtn {
+  background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
+  color: white;
+  box-shadow: 0 4px 12px rgba(59, 130, 246, 0.3);
+}
+
+.employerBtn:hover:not(:disabled) {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(59, 130, 246, 0.4);
+}
+
+/* Responsive design for dev buttons */
+@media (min-width: 640px) {
+  .devLoginButtons {
+    flex-direction: row;
+  }
+  
+  .devLoginBtn {
+    flex: 1;
+  }
+}
+
+/* Animation for dev buttons */
+.devLoginBtn:active {
+  transform: translateY(0) scale(0.98);
+}
+
+/* Loading state for dev buttons */
+.devLoginBtn:disabled::after {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 16px;
+  height: 16px;
+  margin: -8px 0 0 -8px;
+  border: 2px solid transparent;
+  border-top: 2px solid rgba(255, 255, 255, 0.8);
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
