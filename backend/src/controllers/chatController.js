@@ -15,7 +15,7 @@ const prisma = new PrismaClient();
 const getTaskChat = async (req, res) => {
   try {
     const { taskId } = req.params;
-    const userId = req.userId || req.query.userId;
+    const userId = req.userId;
 
     console.log('📞 Getting task chat:', { taskId, userId });
 
@@ -50,7 +50,10 @@ const getTaskChat = async (req, res) => {
     let workerId = null;
     let employerId = null;
 
-    if (task.employer.user.id === userId || task.employer.id === userId) {
+    // Remove debug logs for cleaner output
+
+    // Use consistent User ID for identification
+    if (task.employer.user.id === userId) {
       userRole = 'employer';
       employerId = task.employer.id;
     } else {
@@ -60,25 +63,7 @@ const getTaskChat = async (req, res) => {
         include: { worker: true }
       });
 
-      if (!userWorker?.worker) {
-        // Try finding by worker ID directly
-        const worker = await prisma.worker.findUnique({
-          where: { id: userId },
-          include: { user: true }
-        });
-        
-        if (worker) {
-          const acceptedApp = task.applications.find(app => 
-            app.workerId === worker.id && app.status === 'ACCEPTED'
-          );
-          
-          if (acceptedApp) {
-            userRole = 'worker';
-            workerId = worker.id;
-            employerId = task.employer.id;
-          }
-        }
-      } else {
+      if (userWorker?.worker) {
         const acceptedApp = task.applications.find(app => 
           app.workerId === userWorker.worker.id && app.status === 'ACCEPTED'
         );
@@ -92,6 +77,17 @@ const getTaskChat = async (req, res) => {
     }
 
     if (!userRole) {
+      console.log('❌ Access denied - Debug info:', {
+        userId,
+        employerUserId: task.employer.user.id,
+        taskApplications: task.applications.map(app => ({
+          id: app.id,
+          workerId: app.workerId,
+          status: app.status,
+          workerUserId: 'N/A' // We don't have worker user ID in this query
+        }))
+      });
+      
       return res.status(403).json({
         success: false,
         error: 'Access denied',
@@ -176,7 +172,7 @@ const sendChatMessage = async (req, res) => {
   try {
     const { taskId } = req.params;
     const { content, messageType = 'text' } = req.body;
-    const userId = req.userId || req.query.userId;
+    const userId = req.userId;
 
     console.log('💬 Sending chat message:', { taskId, userId, messageType });
 
@@ -218,12 +214,20 @@ const sendChatMessage = async (req, res) => {
     let senderType = null;
     let senderUserId = null;
 
-    if (chat.task.employer.user.id === userId || chat.task.employer.id === userId) {
+    // Keep minimal logging for user identification issues
+    console.log('🔍 Chat user check:', {
+      userId: userId,
+      isEmployer: chat.task.employer.user.id === userId,
+      isWorker: chat.worker.user.id === userId
+    });
+
+    // Use the consistent User ID for identification
+    if (chat.task.employer.user.id === userId) {
       senderType = 'employer';
-      senderUserId = chat.task.employer.user.id;
-    } else if (chat.worker.user.id === userId || chat.worker.id === userId) {
+      senderUserId = userId;
+    } else if (chat.worker.user.id === userId) {
       senderType = 'worker';  
-      senderUserId = chat.worker.user.id;
+      senderUserId = userId;
     }
 
     if (!senderType) {
@@ -288,7 +292,7 @@ const sendChatMessage = async (req, res) => {
 const markMessagesAsRead = async (req, res) => {
   try {
     const { taskId } = req.params;
-    const userId = req.userId || req.query.userId;
+    const userId = req.userId;
 
     console.log('👁️ Marking messages as read:', { taskId, userId });
 
@@ -307,9 +311,9 @@ const markMessagesAsRead = async (req, res) => {
       });
     }
 
-    // Verify user is part of chat
-    const isEmployer = chat.task.employer.user.id === userId || chat.task.employer.id === userId;
-    const isWorker = chat.worker.user.id === userId || chat.worker.id === userId;
+    // Verify user is part of chat using consistent User ID
+    const isEmployer = chat.task.employer.user.id === userId;
+    const isWorker = chat.worker.user.id === userId;
 
     if (!isEmployer && !isWorker) {
       return res.status(403).json({

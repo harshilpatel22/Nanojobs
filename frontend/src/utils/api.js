@@ -15,6 +15,34 @@ import axios from 'axios';
 // API Base URL
 const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:5001/api';
 
+// Token management utilities for proper session isolation
+const tokenUtils = {
+  getToken: () => {
+    // Try sessionStorage first (per-tab), fallback to localStorage (cross-tab)
+    const sessionToken = sessionStorage.getItem('nanojobs_session_token');
+    const localToken = localStorage.getItem('nanojobs_session_token');
+    const token = sessionToken || localToken;
+    
+    if (token) {
+      console.log('🔍 Token source:', sessionToken ? 'sessionStorage (this tab)' : 'localStorage (shared)');
+    }
+    
+    return token;
+  },
+  setToken: (token) => {
+    console.log('🔑 Setting session token for this tab');
+    // Store in both for compatibility, but sessionStorage takes precedence
+    sessionStorage.setItem('nanojobs_session_token', token);
+    localStorage.setItem('nanojobs_session_token', token);
+  },
+  removeToken: () => {
+    console.log('🗑️ Removing session token from this tab');
+    // Remove from both storages
+    sessionStorage.removeItem('nanojobs_session_token');
+    localStorage.removeItem('nanojobs_session_token');
+  }
+};
+
 // Create axios instance with default configuration
 const apiClient = axios.create({
   baseURL: API_BASE_URL,
@@ -27,7 +55,7 @@ const apiClient = axios.create({
 // Request interceptor for adding authentication
 apiClient.interceptors.request.use(
   (config) => {
-    const sessionToken = localStorage.getItem('nanojobs_session_token');
+    const sessionToken = tokenUtils.getToken();
     if (sessionToken) {
       config.headers.Authorization = `Bearer ${sessionToken}`;
     }
@@ -51,7 +79,7 @@ apiClient.interceptors.response.use(
     console.error('API Response Error:', error.response?.status, error.response?.data || error.message);
     
     if (error.response?.status === 401) {
-      localStorage.removeItem('nanojobs_session_token');
+      tokenUtils.removeToken();
       localStorage.removeItem('nanojobs_worker_id');
       localStorage.removeItem('nanojobs_employer_id');
       window.dispatchEvent(new Event('auth-expired'));
@@ -67,14 +95,14 @@ apiClient.interceptors.response.use(
 export const storageUtils = {
   // Worker session management
   setWorkerSession: (sessionToken, workerId) => {
-    localStorage.setItem('nanojobs_session_token', sessionToken);
+    tokenUtils.setToken(sessionToken);
     localStorage.setItem('nanojobs_worker_id', workerId);
     localStorage.removeItem('nanojobs_employer_id'); // Clear employer session
   },
 
   // Employer session management
   setEmployerSession: (sessionToken, employerId) => {
-    localStorage.setItem('nanojobs_session_token', sessionToken);
+    tokenUtils.setToken(sessionToken);
     localStorage.setItem('nanojobs_employer_id', employerId);
     localStorage.removeItem('nanojobs_worker_id'); // Clear worker session
   },
@@ -82,7 +110,7 @@ export const storageUtils = {
   // Get current session (works for both user types)
   getSession: () => {
     return {
-      sessionToken: localStorage.getItem('nanojobs_session_token'),
+      sessionToken: tokenUtils.getToken(),
       workerId: localStorage.getItem('nanojobs_worker_id'),
       employerId: localStorage.getItem('nanojobs_employer_id')
     };
@@ -90,14 +118,14 @@ export const storageUtils = {
 
   // Clear all session data
   clearSession: () => {
-    localStorage.removeItem('nanojobs_session_token');
+    tokenUtils.removeToken();
     localStorage.removeItem('nanojobs_worker_id');
     localStorage.removeItem('nanojobs_employer_id');
   },
 
   // Check if any user is logged in
   isLoggedIn: () => {
-    const token = localStorage.getItem('nanojobs_session_token');
+    const token = tokenUtils.getToken();
     const workerId = localStorage.getItem('nanojobs_worker_id');
     const employerId = localStorage.getItem('nanojobs_employer_id');
     return !!(token && (workerId || employerId));
@@ -1317,6 +1345,50 @@ getMarketplaceTasks: async (workerId, searchQuery = '', filters = {}) => {
     }
   },
 
+  // Basic Worker Registration APIs
+  registerBasicWorker: async (formData) => {
+    console.log('📡 API Call: registerBasicWorker');
+    
+    try {
+      const response = await fetch('/api/basic-workers/register-basic', {
+        method: 'POST',
+        body: formData // FormData for file upload
+      });
+      const result = await response.json();
+      console.log('✅ registerBasicWorker response:', result);
+      return result;
+    } catch (error) {
+      console.error('❌ registerBasicWorker error:', error);
+      throw error;
+    }
+  },
+
+  getBasicWorkerProfile: async (workerId) => {
+    console.log('📡 API Call: getBasicWorkerProfile', workerId);
+    
+    try {
+      const response = await apiClient.get(`/basic-workers/${workerId}/profile`);
+      console.log('✅ getBasicWorkerProfile response:', response.data);
+      return response.data;
+    } catch (error) {
+      console.error('❌ getBasicWorkerProfile error:', error);
+      throw error;
+    }
+  },
+
+  getBadgeCategories: async () => {
+    console.log('📡 API Call: getBadgeCategories');
+    
+    try {
+      const response = await apiClient.get('/basic-workers/badge-categories');
+      console.log('✅ getBadgeCategories response:', response.data);
+      return response.data;
+    } catch (error) {
+      console.error('❌ getBadgeCategories error:', error);
+      throw error;
+    }
+  },
+
   bulkAcceptApplications: async (applicationIds) => {
     console.log('📡 API Call: bulkAcceptApplications', applicationIds);
     
@@ -1381,14 +1453,11 @@ getMarketplaceTasks: async (workerId, searchQuery = '', filters = {}) => {
   // NEW: Enhanced Task Detail APIs
   
   // Get detailed task information with attachments and submissions
-  getBronzeTaskDetails: async (taskId, userId = null) => {
-    console.log('📡 API Call: getBronzeTaskDetails', { taskId, userId });
-    
-    const params = {};
-    if (userId) params.userId = userId;
+  getBronzeTaskDetails: async (taskId) => {
+    console.log('📡 API Call: getBronzeTaskDetails', { taskId });
     
     try {
-      const response = await apiClient.get(`/bronze-tasks/${taskId}/details`, { params });
+      const response = await apiClient.get(`/bronze-tasks/${taskId}/details`);
       console.log('✅ getBronzeTaskDetails response:', response.data);
       return response.data;
     } catch (error) {
@@ -1513,11 +1582,11 @@ getMarketplaceTasks: async (workerId, searchQuery = '', filters = {}) => {
   // CHAT API FUNCTIONS
   
   // Get or create chat for a task
-  getTaskChat: async (taskId, userId) => {
-    console.log('📡 API Call: getTaskChat', { taskId, userId });
+  getTaskChat: async (taskId) => {
+    console.log('📡 API Call: getTaskChat', { taskId });
     
     try {
-      const response = await apiClient.get(`/bronze-tasks/${taskId}/chat?userId=${userId}`);
+      const response = await apiClient.get(`/bronze-tasks/${taskId}/chat`);
       console.log('✅ getTaskChat response:', response.data);
       return response.data;
     } catch (error) {
@@ -1527,11 +1596,11 @@ getMarketplaceTasks: async (workerId, searchQuery = '', filters = {}) => {
   },
 
   // Send a message in task chat
-  sendChatMessage: async (taskId, content, messageType = 'text', userId) => {
+  sendChatMessage: async (taskId, content, messageType = 'text') => {
     console.log('📡 API Call: sendChatMessage', { taskId, content, messageType });
     
     try {
-      const response = await apiClient.post(`/bronze-tasks/${taskId}/chat/messages?userId=${userId}`, {
+      const response = await apiClient.post(`/bronze-tasks/${taskId}/chat/messages`, {
         content,
         messageType
       });
@@ -1544,11 +1613,11 @@ getMarketplaceTasks: async (workerId, searchQuery = '', filters = {}) => {
   },
 
   // Mark messages as read
-  markChatMessagesAsRead: async (taskId, userId) => {
+  markChatMessagesAsRead: async (taskId) => {
     console.log('📡 API Call: markChatMessagesAsRead', { taskId });
     
     try {
-      const response = await apiClient.put(`/bronze-tasks/${taskId}/chat/read?userId=${userId}`);
+      const response = await apiClient.put(`/bronze-tasks/${taskId}/chat/read`);
       console.log('✅ markChatMessagesAsRead response:', response.data);
       return response.data;
     } catch (error) {
@@ -1659,6 +1728,73 @@ export const ratingAPI = {
       return response.data;
     } catch (error) {
       console.error('❌ getRatingDetails error:', error);
+      throw error;
+    }
+  }
+};
+
+/**
+ * DigiLocker API - Aadhaar verification through government portal
+ */
+export const digilockerAPI = {
+  // Initiate DigiLocker verification
+  initiateVerification: async (tempUserId, userType = 'worker') => {
+    console.log('📡 API Call: initiateDigiLockerVerification', { tempUserId, userType });
+    
+    try {
+      const response = await apiClient.post('/auth/digilocker/initiate', {
+        tempUserId,
+        userType
+      });
+      console.log('✅ initiateDigiLockerVerification response:', response.data);
+      return response.data;
+    } catch (error) {
+      console.error('❌ initiateDigiLockerVerification error:', error);
+      throw error;
+    }
+  },
+
+  // Check DigiLocker verification status
+  checkVerificationStatus: async (userId) => {
+    console.log('📡 API Call: checkDigiLockerStatus', userId);
+    
+    try {
+      const response = await apiClient.get(`/auth/digilocker/status/${userId}`);
+      console.log('✅ checkDigiLockerStatus response:', response.data);
+      return response.data;
+    } catch (error) {
+      console.error('❌ checkDigiLockerStatus error:', error);
+      throw error;
+    }
+  },
+
+  // Mock verification for development
+  mockVerification: async (userId, aadhaarNumber) => {
+    console.log('📡 API Call: mockDigiLockerVerification', { userId, aadhaarNumber });
+    
+    try {
+      const response = await apiClient.post('/auth/digilocker/mock-verify', {
+        userId,
+        aadhaarNumber
+      });
+      console.log('✅ mockDigiLockerVerification response:', response.data);
+      return response.data;
+    } catch (error) {
+      console.error('❌ mockDigiLockerVerification error:', error);
+      throw error;
+    }
+  },
+
+  // Health check for DigiLocker service
+  healthCheck: async () => {
+    console.log('📡 API Call: digilockerHealthCheck');
+    
+    try {
+      const response = await apiClient.get('/auth/digilocker/health');
+      console.log('✅ digilockerHealthCheck response:', response.data);
+      return response.data;
+    } catch (error) {
+      console.error('❌ digilockerHealthCheck error:', error);
       throw error;
     }
   }
@@ -2359,6 +2495,7 @@ export default {
   employerAPI,
   trialTaskAPI,
   ratingAPI,
+  digilockerAPI,
   aiAPI,
   paymentAPI,
   taskAPI,

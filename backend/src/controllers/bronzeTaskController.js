@@ -39,9 +39,16 @@ const getBronzeTasksByCategory = async (req, res) => {
       }
     }
 
-    // Get tasks from database with FIXED where clause
+    // Get tasks from database - exclude completed tasks from marketplace
     const where = {
-      // Remove isActive filter - use actual field names from your schema
+      // Exclude tasks that have completed applications (approved submissions)
+      NOT: {
+        applications: {
+          some: {
+            status: 'COMPLETED'
+          }
+        }
+      }
     };
 
     // Add category filter if provided
@@ -961,14 +968,44 @@ const createBronzeTask = async (req, res) => {
       difficulty = 'beginner',
       skillTags = [],
       industry = 'general',
-      attachmentDescriptions = []
+      attachmentDescriptions = [],
+      isFreeTask = 'false' // Add free task support
     } = req.body;
 
-    console.log('➕ Creating bronze task:', { title, category, employerId });
+    // Convert string to boolean for isFreeTask
+    const isUsingFreeTask = isFreeTask === 'true' || isFreeTask === true;
+    
+    console.log('➕ Creating bronze task:', { title, category, employerId, isUsingFreeTask });
     console.log('📋 Request body:', req.body);
     console.log('📎 Files:', req.files ? req.files.length : 0);
 
-    if (!employerId || !title || !description || !category || !duration || !payAmount) {
+    // Check and handle free task usage
+    if (isUsingFreeTask) {
+      const employer = await prisma.employer.findUnique({
+        where: { id: employerId }
+      });
+
+      if (!employer) {
+        return res.status(404).json({
+          success: false,
+          error: 'Employer not found',
+          message: 'Invalid employer ID'
+        });
+      }
+
+      const freeTasksUsed = employer.freeTasksUsed || 0;
+      if (freeTasksUsed >= 3) {
+        return res.status(400).json({
+          success: false,
+          error: 'Free task limit exceeded',
+          message: 'You have already used all 3 free task credits'
+        });
+      }
+
+      console.log(`🆓 Using free task credit: ${freeTasksUsed + 1}/3`);
+    }
+
+    if (!employerId || !title || !description || !category || !duration || (!isUsingFreeTask && !payAmount)) {
       // Cleanup uploaded files if validation fails
       if (req.attachmentInfo && req.attachmentInfo.length > 0) {
         const { cleanupFiles } = require('../middleware/taskFileUpload');
@@ -1004,38 +1041,65 @@ const createBronzeTask = async (req, res) => {
       originalCategory: category,
       categoryEnum,
       originalSkillTags: skillTags,
-      parsedSkillTags
+      parsedSkillTags,
+      payAmount: isUsingFreeTask ? 0 : parseFloat(payAmount),
+      isUsingFreeTask,
+      employerId,
+      duration: parseInt(duration)
     });
 
     // Parse attachment descriptions if provided
     const parsedAttachmentDescriptions = Array.isArray(attachmentDescriptions) ? attachmentDescriptions :
       (typeof attachmentDescriptions === 'string' ? attachmentDescriptions.split(',').map(s => s.trim()) : []);
 
-    const bronzeTask = await prisma.bronzeTask.create({
-      data: {
-        employerId,
-        title: title.trim(),
-        description: description.trim(),
-        category: categoryEnum,
-        duration: parseInt(duration),
-        payAmount: parseFloat(payAmount),
-        difficulty,
-        skillTags: parsedSkillTags,
-        industry,
-        recurring: false,
-        minAccuracy: 95.0,
-        minTasksCompleted: 0,
-        instructionLanguage: 'english',
-        hasVoiceInstructions: false
-      },
-      include: {
-        employer: {
-          include: { user: { select: { name: true } } }
+    // Create the bronze task with transaction for free task counter
+    const bronzeTask = await prisma.$transaction(async (tx) => {
+      // Create the bronze task
+      const task = await tx.bronzeTask.create({
+        data: {
+          employerId,
+          title: title.trim(),
+          description: description.trim(),
+          category: categoryEnum,
+          duration: parseInt(duration),
+          payAmount: isUsingFreeTask ? 0 : parseFloat(payAmount),
+          difficulty,
+          skillTags: parsedSkillTags,
+          industry,
+          recurring: false,
+          minAccuracy: 95.0,
+          minTasksCompleted: 0,
+          instructionLanguage: 'english',
+          hasVoiceInstructions: false,
+          isFreeTask: isUsingFreeTask
+        },
+        include: {
+          employer: {
+            include: { user: { select: { name: true } } }
+          }
         }
+      });
+
+      // Increment employer counters
+      if (isUsingFreeTask) {
+        await tx.employer.update({
+          where: { id: employerId },
+          data: { 
+            tasksPosted: { increment: 1 },
+            freeTasksUsed: { increment: 1 }
+          }
+        });
+      } else {
+        await tx.employer.update({
+          where: { id: employerId },
+          data: { tasksPosted: { increment: 1 } }
+        });
       }
+
+      return task;
     });
 
-    // Handle file attachments if present
+    // Handle file attachments outside transaction (non-critical)
     let attachments = [];
     if (req.attachmentInfo && req.attachmentInfo.length > 0) {
       try {
@@ -1064,17 +1128,11 @@ const createBronzeTask = async (req, res) => {
         cleanupFiles(req.files);
       }
     }
-
-    await prisma.employer.update({
-      where: { id: employerId },
-      data: { tasksPosted: { increment: 1 } }
-    });
-
     console.log('✅ Bronze task created successfully:', bronzeTask.id);
 
     return res.status(201).json({
       success: true,
-      message: 'Task created successfully',
+      message: isUsingFreeTask ? 'Free task created successfully!' : 'Task created successfully',
       data: {
         task: {
           id: bronzeTask.id,
@@ -1086,6 +1144,7 @@ const createBronzeTask = async (req, res) => {
           totalBudget: bronzeTask.payAmount,
           requiredSkills: bronzeTask.skillTags,
           requiredBadge: 'BRONZE',
+          isFreeTask: isUsingFreeTask,
           status: 'AVAILABLE',
           urgency: 'normal',
           location: 'Remote',
@@ -1118,7 +1177,11 @@ const createBronzeTask = async (req, res) => {
     return res.status(500).json({
       success: false,
       error: 'Internal server error',
-      message: 'Failed to create bronze task'
+      message: 'Failed to create bronze task',
+      ...(process.env.NODE_ENV === 'development' && { 
+        details: error.message,
+        stack: error.stack 
+      })
     });
   }
 };

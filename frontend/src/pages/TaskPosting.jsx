@@ -60,7 +60,8 @@ const TaskPosting = ({ employerId }) => {
     location: 'Remote',
     maxApplications: '10',
     deadline: '',
-    startDate: ''
+    startDate: '',
+    isFreeTask: false // New field for free tasks
   });
   
   // File upload state
@@ -80,6 +81,11 @@ const TaskPosting = ({ employerId }) => {
   const [hasUPIMandate, setHasUPIMandate] = useState(false);
   const [upiMandate, setUpiMandate] = useState(null);
   const [isCheckingMandate, setIsCheckingMandate] = useState(true);
+  
+  // Free Task state
+  const [freeTasksRemaining, setFreeTasksRemaining] = useState(0);
+  const [isPostingFreeTask, setIsPostingFreeTask] = useState(false);
+  const [showFreeTaskInfo, setShowFreeTaskInfo] = useState(false);
 
   // Initialize and check UPI mandate status
   useEffect(() => {
@@ -98,6 +104,7 @@ const TaskPosting = ({ employerId }) => {
     
     checkUPIMandate();
     loadTaskCategories();
+    checkFreeTasksRemaining();
   }, []);
 
   // Auto-calculate total budget
@@ -221,6 +228,42 @@ const TaskPosting = ({ employerId }) => {
   };
 
   /**
+   * Check how many free tasks the employer has remaining
+   */
+  const checkFreeTasksRemaining = async () => {
+    try {
+      console.log('🔍 Checking free tasks remaining for employer:', employerId);
+      
+      const response = await fetch(`${API_BASE}/employers/${employerId}`, {
+        headers: {
+          'Authorization': `Bearer ${localStorage.getItem('nanojobs_session_token')}`
+        }
+      });
+      
+      if (response.ok) {
+        const result = await response.json();
+        
+        if (result.success && result.data) {
+          const freeTasksUsed = result.data.employer.freeTasksUsed || 0;
+          const remaining = Math.max(0, 3 - freeTasksUsed);
+          setFreeTasksRemaining(remaining);
+          
+          console.log(`✅ Free tasks remaining: ${remaining}/3`);
+          
+          // Show free task info if they have remaining tasks
+          if (remaining > 0) {
+            setShowFreeTaskInfo(true);
+          }
+        }
+      } else {
+        console.error('❌ Failed to check free tasks:', response.status);
+      }
+    } catch (error) {
+      console.error('❌ Free tasks check error:', error);
+    }
+  };
+
+  /**
    * Handle UPI mandate setup success
    */
   const handleUPIMandateSuccess = (mandate) => {
@@ -313,22 +356,30 @@ const TaskPosting = ({ employerId }) => {
       newErrors.category = 'Please select a category';
     }
 
-    if (!formData.estimatedHours) {
-      newErrors.estimatedHours = 'Estimated hours is required';
-    } else if (parseFloat(formData.estimatedHours) < 0.5) {
-      newErrors.estimatedHours = 'Minimum 0.5 hours required';
-    }
+    // Skip budget validation for free tasks
+    if (!formData.isFreeTask) {
+      if (!formData.estimatedHours) {
+        newErrors.estimatedHours = 'Estimated hours is required';
+      } else if (parseFloat(formData.estimatedHours) < 0.5) {
+        newErrors.estimatedHours = 'Minimum 0.5 hours required';
+      }
 
-    if (!formData.hourlyRate) {
-      newErrors.hourlyRate = 'Hourly rate is required';
-    } else if (parseFloat(formData.hourlyRate) < 50) {
-      newErrors.hourlyRate = 'Minimum rate is ₹50/hour';
-    }
+      if (!formData.hourlyRate) {
+        newErrors.hourlyRate = 'Hourly rate is required';
+      } else if (parseFloat(formData.hourlyRate) < 50) {
+        newErrors.hourlyRate = 'Minimum rate is ₹50/hour';
+      }
 
-    if (!formData.totalBudget) {
-      newErrors.totalBudget = 'Total budget is required';
-    } else if (parseFloat(formData.totalBudget) < 100) {
-      newErrors.totalBudget = 'Minimum budget is ₹100';
+      if (!formData.totalBudget) {
+        newErrors.totalBudget = 'Total budget is required';
+      } else if (parseFloat(formData.totalBudget) < 100) {
+        newErrors.totalBudget = 'Minimum budget is ₹100';
+      }
+    } else {
+      // For free tasks, set default values to avoid backend validation issues
+      formData.estimatedHours = formData.estimatedHours || '1';
+      formData.hourlyRate = formData.hourlyRate || '0';
+      formData.totalBudget = '0';
     }
 
     setErrors(newErrors);
@@ -367,7 +418,8 @@ const TaskPosting = ({ employerId }) => {
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-    if (!hasUPIMandate) {
+    // Skip UPI mandate check for free tasks
+    if (!formData.isFreeTask && !hasUPIMandate) {
       toast.error('⚠️ Please setup UPI payment protection first');
       setShowUPIModal(true);
       return;
@@ -389,11 +441,12 @@ const TaskPosting = ({ employerId }) => {
       taskFormData.append('description', formData.description.trim());
       taskFormData.append('category', formData.category);
       taskFormData.append('duration', Math.round(parseFloat(formData.estimatedHours) * 60)); // Convert hours to minutes
-      taskFormData.append('payAmount', parseFloat(formData.totalBudget));
+      taskFormData.append('payAmount', formData.isFreeTask ? 0 : parseFloat(formData.totalBudget));
       taskFormData.append('skillTags', JSON.stringify(formData.requiredSkills));
       taskFormData.append('employerId', employerId);
       taskFormData.append('difficulty', 'beginner'); // Default value
       taskFormData.append('industry', 'general'); // Default value
+      taskFormData.append('isFreeTask', formData.isFreeTask.toString()); // Add free task flag
       
       // Add attachments if any
       if (attachments.length > 0) {
@@ -405,15 +458,16 @@ const TaskPosting = ({ employerId }) => {
         }
       }
 
-      console.log('📝 Creating task with payment protection and attachments...');
+      console.log(`📝 Creating ${formData.isFreeTask ? 'free' : 'paid'} task with ${attachments.length} attachments...`);
       console.log('FormData contents:', {
         title: formData.title.trim(),
         description: formData.description.trim(),
         category: formData.category,
         duration: Math.round(parseFloat(formData.estimatedHours) * 60),
-        payAmount: parseFloat(formData.totalBudget),
+        payAmount: formData.isFreeTask ? 0 : parseFloat(formData.totalBudget),
         skillTags: formData.requiredSkills,
         employerId,
+        isFreeTask: formData.isFreeTask,
         attachmentCount: attachments.length
       });
 
@@ -590,6 +644,23 @@ const TaskPosting = ({ employerId }) => {
         </div>
       )}
 
+      {/* Free Tasks Banner */}
+      {showFreeTaskInfo && freeTasksRemaining > 0 && (
+        <div className={styles.statusBanner + ' ' + styles.info}>
+          <div className={styles.bannerIcon}>
+            <Zap size={20} />
+          </div>
+          <div className={styles.bannerContent}>
+            <h4>Free Task Credits Available</h4>
+            <p>You have {freeTasksRemaining} out of 3 free task credits remaining</p>
+            <small>Post your first 3 tasks at no cost to get started!</small>
+          </div>
+          <div className={styles.trustBadge}>
+            <span>{freeTasksRemaining}/3</span>
+          </div>
+        </div>
+      )}
+
       <div className={styles.content}>
         {/* Main Form */}
         <div className={styles.formSection}>
@@ -676,7 +747,34 @@ const TaskPosting = ({ employerId }) => {
                   </div>
                   
                   <div className={styles.stepContent}>
-                    <div className={styles.budgetGrid}>
+                    {/* Free Task Option - Show first */}
+                    {freeTasksRemaining > 0 && (
+                      <div className={styles.freeTaskOption}>
+                        <div className={styles.checkboxGroup}>
+                          <input
+                            type="checkbox"
+                            id="freeTask"
+                            checked={formData.isFreeTask}
+                            onChange={(e) => handleInputChange('isFreeTask', e.target.checked)}
+                            className={styles.checkbox}
+                          />
+                          <label htmlFor="freeTask" className={styles.checkboxLabel}>
+                            <Zap size={16} />
+                            <span>Use a free task credit ({freeTasksRemaining} remaining)</span>
+                          </label>
+                        </div>
+                        {formData.isFreeTask && (
+                          <div className={styles.freeTaskNotice}>
+                            <CheckCircle size={14} />
+                            <span>This task will be posted for free! No budget required.</span>
+                          </div>
+                        )}
+                      </div>
+                    )}
+
+                    {/* Budget inputs - Hide when free task is selected */}
+                    {!formData.isFreeTask && (
+                      <div className={styles.budgetGrid}>
                       <div className={styles.inputGroup}>
                         <Input
                           label="How many hours do you estimate? *"
@@ -715,10 +813,11 @@ const TaskPosting = ({ employerId }) => {
                           <div className={styles.helperText}>Auto-calculated from hours × rate</div>
                         </div>
                       </div>
-                    </div>
+                      </div>
+                    )}
 
-                    {/* Budget Calculator */}
-                    {formData.estimatedHours && formData.hourlyRate && (
+                    {/* Budget Calculator - Only show for paid tasks */}
+                    {!formData.isFreeTask && formData.estimatedHours && formData.hourlyRate && (
                       <div className={styles.budgetSummary}>
                         <div className={styles.calculationRow}>
                           <span>{formData.estimatedHours} hours</span>
@@ -728,7 +827,7 @@ const TaskPosting = ({ employerId }) => {
                           <span className={styles.totalAmount}>₹{formData.totalBudget}</span>
                         </div>
                         
-                        {hasUPIMandate && (
+                        {hasUPIMandate && !formData.isFreeTask && (
                           <div className={styles.escrowNotice}>
                             <Shield size={14} />
                             <span>This amount will be secured in escrow when posted</span>
@@ -736,6 +835,7 @@ const TaskPosting = ({ employerId }) => {
                         )}
                       </div>
                     )}
+
                   </div>
                 </div>
 
@@ -955,14 +1055,27 @@ const TaskPosting = ({ employerId }) => {
                   <div className={styles.submitContent}>
                     <div className={styles.submitSummary}>
                       <h4>Ready to post your task?</h4>
-                      <div className={styles.finalBudget}>
-                        <span>Total Budget: </span>
-                        <strong>₹{formData.totalBudget || '0'}</strong>
-                      </div>
-                      {hasUPIMandate && (
+                      {formData.isFreeTask ? (
+                        <div className={styles.finalBudget}>
+                          <span>Using free task credit: </span>
+                          <strong style={{color: '#10b981'}}>FREE</strong>
+                        </div>
+                      ) : (
+                        <div className={styles.finalBudget}>
+                          <span>Total Budget: </span>
+                          <strong>₹{formData.totalBudget || '0'}</strong>
+                        </div>
+                      )}
+                      {!formData.isFreeTask && hasUPIMandate && (
                         <div className={styles.escrowInfo}>
                           <Shield size={16} />
                           <span>Funds will be secured until task completion</span>
+                        </div>
+                      )}
+                      {formData.isFreeTask && (
+                        <div className={styles.escrowInfo} style={{color: '#10b981'}}>
+                          <Zap size={16} />
+                          <span>No payment required - using free task credit</span>
                         </div>
                       )}
                     </div>
@@ -971,13 +1084,24 @@ const TaskPosting = ({ employerId }) => {
                       type="submit"
                       size="lg"
                       loading={isSubmitting}
-                      disabled={!hasUPIMandate || !formData.title || !formData.description || !formData.category || !formData.totalBudget}
+                      disabled={
+                        (!formData.isFreeTask && !hasUPIMandate) || 
+                        !formData.title || 
+                        !formData.description || 
+                        !formData.category || 
+                        (!formData.isFreeTask && !formData.totalBudget)
+                      }
                       className={styles.submitButton}
                     >
                       {isSubmitting ? (
                         <>
                           <div className={styles.loadingSpinner} />
                           Creating Task...
+                        </>
+                      ) : formData.isFreeTask ? (
+                        <>
+                          <Zap size={18} />
+                          Post Free Task Now
                         </>
                       ) : hasUPIMandate ? (
                         <>
@@ -992,7 +1116,7 @@ const TaskPosting = ({ employerId }) => {
                       )}
                     </Button>
                     
-                    {!hasUPIMandate && (
+                    {!formData.isFreeTask && !hasUPIMandate && (
                       <p className={styles.submitNote}>
                         <Shield size={14} />
                         Payment protection builds trust and attracts quality workers

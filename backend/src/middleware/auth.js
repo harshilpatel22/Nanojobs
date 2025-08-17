@@ -91,17 +91,14 @@ const authenticateToken = async (req, res, next) => {
     req.sessionToken = token;
     
     // Attach specific user data based on type
+    req.userId = session.user.id; // Always use the actual User ID
+    
     if (decoded.userType === 'worker' && session.user.worker) {
       req.worker = session.user.worker;
       req.workerId = session.user.worker.id;
-      req.userId = session.user.worker.id; // For backward compatibility
     } else if (decoded.userType === 'employer' && session.user.employer) {
       req.employer = session.user.employer;
       req.employerId = session.user.employer.id;
-      req.userId = session.user.employer.id; // For backward compatibility
-    } else {
-      // Fallback for cases where worker/employer relation doesn't exist
-      req.userId = decoded.userId;
     }
     
     next();

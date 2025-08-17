@@ -729,7 +729,7 @@ const Login = ({ onWorkerSuccess, onEmployerSuccess }) => {
           <p className={styles.registerText}>New to NanoJobs?</p>
           
           <div className={styles.registerOptions}>
-            <Link to="/register/worker" className={styles.registerLink}>
+            <Link to="/register" className={styles.registerLink}>
               <div className={styles.registerIcon}>
                 <Users size={20} />
               </div>

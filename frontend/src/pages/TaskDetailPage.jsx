@@ -64,7 +64,7 @@ const TaskDetailPage = ({ taskId, userId, userRole }) => {
         setRefreshing(true);
       }
       console.log('🔍 DEBUG - Fetching task details:', { taskId, userId, userRole, silent });
-      const response = await taskAPI.getBronzeTaskDetails(taskId, userId);
+      const response = await taskAPI.getBronzeTaskDetails(taskId);
       
       if (response.success) {
         console.log('🔍 DEBUG - Task data received:', {
@@ -402,8 +402,10 @@ const TaskDetailPage = ({ taskId, userId, userRole }) => {
                   Submissions
                 </button>
               )}
-              {(userRole === 'applicant' && task.userApplication?.status === 'ACCEPTED') || 
-               (userRole === 'employer' && task.allApplications?.some(app => app.status === 'ACCEPTED')) ? (
+              {task && !loading && (
+                ((userRole === 'applicant' && task.userApplication?.status === 'ACCEPTED') || 
+                 (userRole === 'employer' && task.allApplications?.some(app => app.status === 'ACCEPTED')))
+              ) ? (
                 <button
                   className={`${styles.tab} ${activeTab === 'chat' ? styles.activeTab : ''}`}
                   onClick={() => setActiveTab('chat')}
@@ -881,8 +883,10 @@ const TaskDetailPage = ({ taskId, userId, userRole }) => {
                       userId={userId}
                       userRole={userRole}
                       isActive={
-                        (userRole === 'applicant' && task.userApplication?.status === 'ACCEPTED') || 
-                        (userRole === 'employer' && task.allApplications?.some(app => app.status === 'ACCEPTED'))
+                        task && !loading && (
+                          (userRole === 'applicant' && task.userApplication?.status === 'ACCEPTED') || 
+                          (userRole === 'employer' && task.allApplications?.some(app => app.status === 'ACCEPTED'))
+                        )
                       }
                     />
                   </div>

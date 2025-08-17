@@ -106,6 +106,12 @@
   color: #065f46;
 }
 
+.statusBanner.info {
+  background: #eff6ff;
+  border-color: #93c5fd;
+  color: #1e40af;
+}
+
 .bannerIcon {
   flex-shrink: 0;
   color: inherit;
@@ -771,6 +777,52 @@
     flex-direction: column;
     text-align: center;
   }
+}
+
+/* Free Task Option */
+.freeTaskOption {
+  background: #f0f9ff;
+  border: 2px solid #e0f2fe;
+  border-radius: 12px;
+  padding: 20px;
+  margin-bottom: 24px;
+}
+
+.checkboxGroup {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 12px;
+}
+
+.checkbox {
+  width: 18px;
+  height: 18px;
+  accent-color: #0ea5e9;
+  cursor: pointer;
+}
+
+.checkboxLabel {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-weight: 500;
+  color: #0f172a;
+  cursor: pointer;
+  font-size: 16px;
+}
+
+.freeTaskNotice {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: #dcfce7;
+  border: 1px solid #bbf7d0;
+  border-radius: 8px;
+  padding: 12px 16px;
+  color: #166534;
+  font-size: 14px;
+  font-weight: 500;
 }
 
 /* Animations */

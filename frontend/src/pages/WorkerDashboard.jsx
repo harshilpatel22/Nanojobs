@@ -29,7 +29,7 @@ import Button from '../components/common/Button';
 import Card, { CardHeader, CardBody } from '../components/common/Card';
 import LoadingSpinner from '../components/common/LoadingSpinner';
 import StarRating from '../components/common/StarRating';
-import { workerAPI, apiUtils } from '../utils/api';
+import { workerAPI, taskAPI, apiUtils } from '../utils/api';
 
 import styles from './WorkerDashboard.module.css';
 
@@ -144,6 +144,19 @@ const WorkerDashboard = ({ workerId, onLogout }) => {
       retry: 1,
       onError: (error) => {
         console.error('Failed to fetch applications:', error);
+      }
+    }
+  );
+
+  // Fetch worker dashboard data (includes completed tasks)
+  const { data: dashboardData, isLoading: dashboardLoading } = useQuery(
+    ['worker-dashboard', workerId],
+    () => taskAPI.getWorkerBronzeTaskDashboard(workerId),
+    {
+      enabled: !!workerId,
+      retry: 1,
+      onError: (error) => {
+        console.error('Failed to fetch dashboard data:', error);
       }
     }
   );
@@ -439,6 +452,92 @@ const WorkerDashboard = ({ workerId, onLogout }) => {
                     onClick={() => navigate('/tasks')} 
                   >
                     View All Accepted Tasks ({applicationsData.data.applications.filter(app => app.status === 'ACCEPTED').length})
+                  </Button>
+                </div>
+              )}
+            </div>
+          </CardBody>
+        </Card>
+      )}
+
+      {/* Completed Tasks Section */}
+      {dashboardData?.success && dashboardData?.data?.completedTasks?.length > 0 && (
+        <Card className={styles.completedTasksCard}>
+          <CardHeader>
+            <h3><CheckCircle2 size={20} /> Completed Tasks</h3>
+            <p>Your successfully completed tasks and earnings history</p>
+          </CardHeader>
+          <CardBody>
+            <div className={styles.completedTasksStats}>
+              <div className={styles.completedStat}>
+                <div className={styles.statValue}>
+                  {dashboardData.data.stats?.completedTasks || 0}
+                </div>
+                <div className={styles.statLabel}>Tasks Completed</div>
+              </div>
+              <div className={styles.completedStat}>
+                <div className={styles.statValue}>
+                  ₹{dashboardData.data.stats?.totalEarnings || 0}
+                </div>
+                <div className={styles.statLabel}>Total Earned</div>
+              </div>
+              <div className={styles.completedStat}>
+                <div className={styles.statValue}>
+                  ₹{Math.round(dashboardData.data.stats?.averageTaskValue || 0)}
+                </div>
+                <div className={styles.statLabel}>Avg per Task</div>
+              </div>
+            </div>
+            
+            <div className={styles.completedTasksList}>
+              {dashboardData.data.completedTasks
+                .slice(0, 5)
+                .map((task) => (
+                  <div key={task.id} className={styles.completedTaskItem}>
+                    <div className={styles.taskInfo}>
+                      <div className={styles.taskHeader}>
+                        <h4 className={styles.taskTitle}>{task.title}</h4>
+                        <div className={styles.taskMeta}>
+                          <span className={styles.taskPay}>₹{task.payAmount}</span>
+                          <span className={styles.taskCategory}>{task.category}</span>
+                        </div>
+                      </div>
+                      <div className={styles.taskDetails}>
+                        <span className={styles.employer}>
+                          👤 {task.employer.name}
+                          {task.employer.isVerified && <span className={styles.verified}>✓</span>}
+                        </span>
+                        <span className={styles.completedDate}>
+                          Completed: {task.payment.completedAt ? 
+                            new Date(task.payment.completedAt).toLocaleDateString() : 
+                            new Date(task.appliedAt).toLocaleDateString()
+                          }
+                        </span>
+                      </div>
+                      <div className={styles.paymentInfo}>
+                        <span className={`${styles.paymentStatus} ${styles[task.payment.status?.toLowerCase()]}`}>
+                          {task.payment.status === 'COMPLETED' ? '💰 Paid' : '⏳ Processing'}
+                        </span>
+                        {task.payment.transactionId && (
+                          <span className={styles.transactionId}>
+                            ID: {task.payment.transactionId}
+                          </span>
+                        )}
+                      </div>
+                    </div>
+                  </div>
+                ))}
+              
+              {dashboardData.data.completedTasks.length > 5 && (
+                <div className={styles.viewAllCompleted}>
+                  <Button
+                    variant="outline"
+                    onClick={() => {
+                      // Could navigate to a dedicated completed tasks page
+                      console.log('View all completed tasks');
+                    }}
+                  >
+                    View All Completed ({dashboardData.data.completedTasks.length})
                   </Button>
                 </div>
               )}

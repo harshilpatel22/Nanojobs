@@ -529,6 +529,173 @@
   }
 }
 
+/* Completed Tasks Section */
+.completedTasksCard {
+  margin: 24px 0;
+  background: white;
+  border-radius: 16px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+  border: 1px solid #e2e8f0;
+}
+
+.completedTasksStats {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+  gap: 20px;
+  margin-bottom: 24px;
+  padding: 20px;
+  background: #f8fafc;
+  border-radius: 12px;
+  border: 1px solid #e2e8f0;
+}
+
+.completedStat {
+  text-align: center;
+}
+
+.completedStat .statValue {
+  font-size: 24px;
+  font-weight: 700;
+  color: #10b981;
+  margin-bottom: 4px;
+}
+
+.completedStat .statLabel {
+  font-size: 12px;
+  color: #64748b;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  font-weight: 600;
+}
+
+.completedTasksList {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.completedTaskItem {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 16px;
+  border: 1px solid #e5e7eb;
+  border-radius: 12px;
+  background: #fafbfc;
+  transition: all 0.2s ease;
+}
+
+.completedTaskItem:hover {
+  background: #f1f5f9;
+  border-color: #cbd5e0;
+  transform: translateY(-1px);
+}
+
+.completedTaskItem .taskInfo {
+  flex: 1;
+}
+
+.completedTaskItem .taskHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 8px;
+}
+
+.completedTaskItem .taskTitle {
+  font-size: 16px;
+  font-weight: 600;
+  color: #1a202c;
+  margin: 0;
+  line-height: 1.3;
+}
+
+.completedTaskItem .taskMeta {
+  display: flex;
+  gap: 12px;
+  align-items: center;
+}
+
+.completedTaskItem .taskPay {
+  font-weight: 700;
+  color: #10b981;
+  font-size: 14px;
+}
+
+.completedTaskItem .taskCategory {
+  font-size: 12px;
+  color: #64748b;
+  background: #e2e8f0;
+  padding: 2px 8px;
+  border-radius: 8px;
+  text-transform: capitalize;
+}
+
+.taskDetails {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin: 8px 0;
+  font-size: 13px;
+  color: #64748b;
+}
+
+.employer {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.verified {
+  color: #10b981;
+  font-weight: 600;
+}
+
+.completedDate {
+  font-size: 12px;
+  color: #94a3b8;
+}
+
+.paymentInfo {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-top: 8px;
+}
+
+.paymentStatus {
+  font-size: 12px;
+  font-weight: 600;
+  padding: 4px 8px;
+  border-radius: 8px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.paymentStatus.completed {
+  background: #d1fae5;
+  color: #065f46;
+}
+
+.paymentStatus.pending {
+  background: #fef3c7;
+  color: #92400e;
+}
+
+.transactionId {
+  font-size: 11px;
+  color: #94a3b8;
+  font-family: monospace;
+}
+
+.viewAllCompleted {
+  display: flex;
+  justify-content: center;
+  margin-top: 16px;
+  padding-top: 16px;
+  border-top: 1px solid #e5e7eb;
+}
+
 @media (max-width: 480px) {
   .statsGrid {
     grid-template-columns: 1fr 1fr;
@@ -536,5 +703,28 @@
   
   .quickActionGrid {
     grid-template-columns: 1fr 1fr 1fr;
+  }
+
+  .completedTasksStats {
+    grid-template-columns: 1fr;
+    gap: 12px;
+  }
+
+  .completedTaskItem .taskHeader {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 8px;
+  }
+
+  .taskDetails {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 4px;
+  }
+
+  .paymentInfo {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 4px;
   }
 }

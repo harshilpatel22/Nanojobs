@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import styles from './ChatInterface.module.css';
 import Button from '../common/Button';
-import { Send, MessageCircle, User, Users } from 'lucide-react';
+import { Send, MessageCircle, User, Users, RefreshCw } from 'lucide-react';
 import { taskAPI } from '../../utils/api';
 
 /**
@@ -17,36 +17,31 @@ const ChatInterface = ({ taskId, userId, userRole, isActive = true }) => {
   const [error, setError] = useState('');
   const [hasNewMessages, setHasNewMessages] = useState(false);
   const [lastMessageCount, setLastMessageCount] = useState(0);
-  const [isTyping, setIsTyping] = useState(false);
+  const [refreshing, setRefreshing] = useState(false);
   const messagesEndRef = useRef(null);
   const chatContainerRef = useRef(null);
-  const typingTimeoutRef = useRef(null);
 
-  // Load chat on component mount
+  // Load chat on component mount and when isActive changes
   useEffect(() => {
-    if (taskId && userId) {
+    if (taskId && userId && isActive) {
       loadChat();
       // Request notification permission
       if (Notification.permission === 'default') {
         Notification.requestPermission();
       }
     }
-  }, [taskId, userId]);
+  }, [taskId, userId, isActive]);
 
   // Auto-scroll to bottom when new messages arrive
   useEffect(() => {
     scrollToBottom();
   }, [messages]);
 
-  // Auto-refresh messages every 5 seconds for real-time experience
+  // Manual refresh only (no auto-refresh to prevent rate limiting)
   useEffect(() => {
     if (!isActive) return;
 
-    const interval = setInterval(() => {
-      loadChat(true); // Silent refresh
-    }, 5000);
-
-    // Also refresh when window gains focus
+    // Only refresh when window gains focus (user returns to tab)
     const handleFocus = () => {
       loadChat(true);
     };
@@ -54,20 +49,20 @@ const ChatInterface = ({ taskId, userId, userRole, isActive = true }) => {
     window.addEventListener('focus', handleFocus);
 
     return () => {
-      clearInterval(interval);
       window.removeEventListener('focus', handleFocus);
-      if (typingTimeoutRef.current) {
-        clearTimeout(typingTimeoutRef.current);
-      }
     };
   }, [taskId, userId, isActive]);
 
   // Load chat and messages
   const loadChat = async (silent = false) => {
     try {
-      if (!silent) setLoading(true);
+      if (!silent) {
+        setLoading(true);
+      } else {
+        setRefreshing(true);
+      }
       
-      const response = await taskAPI.getTaskChat(taskId, userId);
+      const response = await taskAPI.getTaskChat(taskId);
       
       if (response.success) {
         const newMessages = response.data.chat.messages || [];
@@ -108,7 +103,11 @@ const ChatInterface = ({ taskId, userId, userRole, isActive = true }) => {
         setError('Unable to load chat. Please try again.');
       }
     } finally {
-      if (!silent) setLoading(false);
+      if (!silent) {
+        setLoading(false);
+      } else {
+        setRefreshing(false);
+      }
     }
   };
 
@@ -125,8 +124,7 @@ const ChatInterface = ({ taskId, userId, userRole, isActive = true }) => {
       const response = await taskAPI.sendChatMessage(
         taskId, 
         messageContent, 
-        'text', 
-        userId
+        'text'
       );
 
       if (response.success) {
@@ -150,7 +148,7 @@ const ChatInterface = ({ taskId, userId, userRole, isActive = true }) => {
   // Mark messages as read
   const markAsRead = async () => {
     try {
-      await taskAPI.markChatMessagesAsRead(taskId, userId);
+      await taskAPI.markChatMessagesAsRead(taskId);
     } catch (err) {
       console.error('❌ Failed to mark messages as read:', err);
     }
@@ -169,23 +167,11 @@ const ChatInterface = ({ taskId, userId, userRole, isActive = true }) => {
     }
   };
 
-  // Handle typing indicator
+  // Handle typing indicator (removed - should only show when OTHER person is typing)
   const handleInputChange = (e) => {
     setNewMessage(e.target.value);
-    
-    // Show typing indicator simulation (in a real app, this would be sent to other users)
-    if (!isTyping && e.target.value.trim()) {
-      setIsTyping(true);
-    }
-    
-    // Clear typing indicator after user stops typing
-    if (typingTimeoutRef.current) {
-      clearTimeout(typingTimeoutRef.current);
-    }
-    
-    typingTimeoutRef.current = setTimeout(() => {
-      setIsTyping(false);
-    }, 1000);
+    // Note: In a real implementation, typing indicators would be sent via WebSocket
+    // to notify the other person that someone is typing
   };
 
   // Format message timestamp
@@ -273,6 +259,15 @@ const ChatInterface = ({ taskId, userId, userRole, isActive = true }) => {
           </div>
         </div>
         <div className={styles.headerActions}>
+          <Button
+            variant="ghost"
+            icon={RefreshCw}
+            onClick={() => loadChat(true)}
+            className={`${styles.refreshButton} ${refreshing ? styles.refreshing : ''}`}
+            disabled={loading || refreshing}
+            size="sm"
+            title="Refresh messages"
+          />
           <span className={styles.userRole}>
             {userRole === 'employer' ? '👔 Employer' : '👤 Worker'}
           </span>
@@ -336,19 +331,6 @@ const ChatInterface = ({ taskId, userId, userRole, isActive = true }) => {
                 </div>
               );
             })}
-            
-            {/* Typing Indicator */}
-            {isTyping && (
-              <div className={styles.typingIndicator}>
-                <div className={styles.typingBubble}>
-                  <div className={styles.typingDots}>
-                    <span></span>
-                    <span></span>
-                    <span></span>
-                  </div>
-                </div>
-              </div>
-            )}
             
             <div ref={messagesEndRef} />
           </div>

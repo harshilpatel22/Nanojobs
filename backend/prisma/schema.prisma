@@ -72,6 +72,12 @@ enum RegistrationMethod {
   RESUME
   QUIZ
   MANUAL
+  BASIC_INFO  // New simplified registration
+}
+
+enum IDDocumentType {
+  AADHAR
+  DRIVING_LICENSE
 }
 
 enum TaskStatus {
@@ -198,12 +204,29 @@ model UPIMandate {
 model Worker {
   id                    String             @id @default(cuid())
   userId                String             @unique
+  
+  // Basic Information
+  city                  String?
+  state                 String?
+  pincode               String?
+  dateOfBirth           DateTime?
+  
+  // ID Verification
+  idDocumentType        IDDocumentType?
+  idDocumentNumber      String?           @unique // Aadhar/DL number
+  idDocumentUrl         String?           // File upload URL
+  isIdVerified          Boolean           @default(false)
+  idVerifiedAt          DateTime?
+  
+  // Single Badge System (Reverted)
   badge                 BadgeLevel         @default(BRONZE)
   badgeReason           String?
+  
+  // Skills and Experience
   skills                String[]
   experienceLevel       ExperienceLevel    @default(FRESHER)
   estimatedHourlyRate   Int                @default(120)
-  registrationMethod    RegistrationMethod
+  registrationMethod    RegistrationMethod @default(BASIC_INFO)
   isKYCCompleted        Boolean            @default(false)
   isPhoneVerified       Boolean            @default(false)
   isEmailVerified       Boolean            @default(false)
@@ -442,6 +465,10 @@ model Employer {
   totalSpent          Decimal             @default(0.00)
   averageRating       Decimal?
   
+  // NEW: Free Task Tracking
+  freeTasksUsed       Int                 @default(0)  // How many free tasks used (max 3)
+  hasUsedFreeTasks    Boolean             @default(false)  // Whether they've used their free tasks
+  
   createdAt           DateTime            @default(now())
   updatedAt           DateTime            @updatedAt
 
@@ -534,6 +561,11 @@ model BronzeTask {
   duration    Int         // Minutes (60-180 for 1-3 hours)
   payAmount   Decimal     @db.Decimal(8,2)
   difficulty  String      // "beginner", "intermediate", "advanced"
+  
+  // NEW: Free Task System
+  isFreeTask  Boolean     @default(false)  // Is this a free task for new employers?
+  isActive    Boolean     @default(true)   // Can workers apply?
+  maxApplications Int     @default(100)    // Max applications (10 for free tasks)
   
   // Simplified Requirements (no complex AI matching)
   skillTags        String[]  // ["excel", "english", "typing", "canva"]
@@ -773,6 +805,35 @@ model ChatMessage {
 // @@index([badge])
 // @@index([availability])
 // @@index([registrationMethod])
+
+// DigiLocker Integration Tables
+model DigilockerVerification {
+  id                String   @id @default(cuid())
+  userId            String   @unique // Temporary user ID during registration
+  aadhaarNumber     String   // Full Aadhaar number from DigiLocker
+  verifiedName      String   // Name from Aadhaar
+  verifiedDob       String?  // Date of birth from Aadhaar
+  verifiedAddress   String?  // Address from Aadhaar (JSON)
+  isVerified        Boolean  @default(false)
+  verifiedAt        DateTime?
+  verificationMethod String  @default("digilocker") // "digilocker" or "mock_digilocker"
+  
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
+  
+  @@map("digilocker_verifications")
+}
+
+model VerificationSession {
+  id        String   @id @default(cuid())
+  userId    String   // Temporary user ID
+  userType  String   @default("worker") // "worker" or "employer"
+  state     String   // OAuth state parameter
+  createdAt DateTime @default(now())
+  expiresAt DateTime // 10 minutes from creation
+  
+  @@map("verification_sessions")
+}
 
 // Employer indexes
 // @@index([isVerified])

@@ -26,8 +26,16 @@ const taskRoutes = require('./src/routes/tasks');
 const paymentRoutes = require('./src/routes/payments');
 const aiRoutes = require('./src/routes/ai');
 const bronzeTaskRoutes = require('./src/routes/bronzeTaskRoutes');
-// NEW: Enhanced Trial Task Routes
-const trialTaskRoutes = require('./src/routes/trials');
+
+// NEW: Basic Worker Registration System
+const basicWorkerRoutes = require('./src/routes/basicWorkerRoutes');
+// NEW: Free Task System
+const freeTaskRoutes = require('./src/routes/freeTaskRoutes');
+// NEW: DigiLocker Integration
+const digilockerRoutes = require('./src/routes/digilockerRoutes');
+
+// LEGACY: Enhanced Trial Task Routes (commented out for now)
+// const trialTaskRoutes = require('./src/routes/trials');
 // NEW: Rating System Routes
 const ratingRoutes = require('./src/routes/ratings');
 
@@ -182,6 +190,14 @@ console.log('✅ Auth routes registered');
 app.use('/api/workers', workerRoutes);
 console.log('✅ Worker routes registered');
 
+// NEW: Basic Worker Registration
+app.use('/api/basic-workers', basicWorkerRoutes);
+console.log('✅ Basic Worker routes registered');
+
+// NEW: DigiLocker Integration
+app.use('/api/auth/digilocker', digilockerRoutes);
+console.log('✅ DigiLocker routes registered');
+
 app.use('/api/employers', employerRoutes);
 console.log('✅ Employer routes registered');
 
@@ -197,9 +213,13 @@ console.log('✅ Payment routes registered');
 app.use('/api/ai', aiRoutes);
 console.log('✅ AI routes registered');
 
-// NEW: Enhanced Trial Task System
-app.use('/api/trial-tasks', trialTaskRoutes);
-console.log('✅ Enhanced Trial Task routes registered');
+// LEGACY: Enhanced Trial Task System (commented out for now)
+// app.use('/api/trial-tasks', trialTaskRoutes);
+// console.log('✅ Enhanced Trial Task routes registered');
+
+// NEW: Free Task System for Badge Earning
+app.use('/api/free-tasks', freeTaskRoutes);
+console.log('✅ Free Task routes registered');
 
 app.use('/api/bronze-tasks', bronzeTaskRoutes);
 console.log('✅ Bronze Task routes registered');

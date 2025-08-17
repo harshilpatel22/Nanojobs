@@ -330,6 +330,10 @@ router.get('/worker/:workerId/dashboard', authMiddleware.authenticateToken, asyn
         : 0
     };
 
+    // Separate completed and active applications
+    const completedApplications = applications.filter(app => app.status === 'COMPLETED');
+    const activeApplications = applications.filter(app => app.status !== 'COMPLETED');
+
     // Format applications for dashboard
     const formattedApplications = applications.map(app => ({
       id: app.id,
@@ -348,9 +352,32 @@ router.get('/worker/:workerId/dashboard', authMiddleware.authenticateToken, asyn
       },
       payment: {
         status: app.bronzeTask.payments[0]?.status || 'PENDING',
-        canReceive: app.status === 'COMPLETED'
+        canReceive: app.status === 'COMPLETED',
+        transactionId: app.bronzeTask.payments[0]?.transactionId,
+        completedAt: app.bronzeTask.payments[0]?.completedAt
       },
       whatsappAvailable: app.status === 'ACCEPTED'
+    }));
+
+    // Format completed tasks with additional details
+    const formattedCompletedTasks = completedApplications.map(app => ({
+      id: app.id,
+      taskId: app.bronzeTask.id,
+      title: app.bronzeTask.title,
+      category: app.bronzeTask.category,
+      payAmount: parseFloat(app.bronzeTask.payAmount),
+      duration: app.bronzeTask.duration,
+      appliedAt: app.appliedAt,
+      employer: {
+        name: app.bronzeTask.employer.user.name,
+        isVerified: app.bronzeTask.employer.isVerified
+      },
+      payment: {
+        status: app.bronzeTask.payments[0]?.status || 'PENDING',
+        transactionId: app.bronzeTask.payments[0]?.transactionId,
+        completedAt: app.bronzeTask.payments[0]?.completedAt,
+        amount: parseFloat(app.bronzeTask.payAmount)
+      }
     }));
 
     console.log('✅ Worker dashboard data compiled');
@@ -359,7 +386,10 @@ router.get('/worker/:workerId/dashboard', authMiddleware.authenticateToken, asyn
       success: true,
       data: {
         stats,
-        applications: formattedApplications
+        applications: formattedApplications,
+        completedTasks: formattedCompletedTasks.sort((a, b) => 
+          new Date(b.payment.completedAt || b.appliedAt) - new Date(a.payment.completedAt || a.appliedAt)
+        )
       }
     });
 

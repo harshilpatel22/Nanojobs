@@ -13,6 +13,8 @@ import { storageUtils, workerAPI, employerAPI } from './utils/api';
 // Import Worker pages
 import Home from './pages/Home';
 import WorkerRegistration from './pages/WorkerRegistration';
+import BasicWorkerRegistration from './pages/BasicWorkerRegistration'; // NEW: Basic registration
+import RegistrationSuccess from './pages/RegistrationSuccess'; // NEW: Registration success
 import TrialTaskflow from './components/trial-tasks/TrialTaskflow'; // ✅ UPDATED: Using TrialTaskflow instead of SkillAssessment
 import WorkerDashboard from './pages/WorkerDashboard';
 import TaskMarketplace from './pages/TaskMarketplace';
@@ -391,9 +393,29 @@ function App() {
               } 
             />
 
-            {/* ✅ UPDATED: Worker Registration Routes with Dual Path Support */}
+            {/* ✅ NEW: Basic Worker Registration Route (Main Registration) */}
             <Route 
               path="/register" 
+              element={
+                <PublicRoute>
+                  <BasicWorkerRegistration />
+                </PublicRoute>
+              } 
+            />
+            
+            {/* Registration Success Page */}
+            <Route 
+              path="/registration-success" 
+              element={
+                <PublicRoute>
+                  <RegistrationSuccess />
+                </PublicRoute>
+              } 
+            />
+
+            {/* LEGACY: Advanced Worker Registration Route */}
+            <Route 
+              path="/register/advanced" 
               element={
                 <PublicRoute>
                   <WorkerRegistration onSuccess={handleWorkerLoginSuccess} />

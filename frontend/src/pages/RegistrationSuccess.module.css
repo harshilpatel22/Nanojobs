@@ -1,0 +1,413 @@
+/**
+ * Registration Success Page Styles
+ * Celebration and onboarding design
+ */
+
+.container {
+  min-height: 100vh;
+  background: linear-gradient(135deg, #f0f8ff 0%, #e6f3ff 100%);
+  padding: 24px;
+  max-width: 900px;
+  margin: 0 auto;
+}
+
+/* Success Header */
+.successHeader {
+  text-align: center;
+  margin-bottom: 32px;
+}
+
+.successIcon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 120px;
+  height: 120px;
+  background: linear-gradient(135deg, #22c55e 0%, #16a34a 100%);
+  border-radius: 50%;
+  color: white;
+  margin-bottom: 24px;
+  animation: successPulse 2s ease-in-out infinite;
+}
+
+@keyframes successPulse {
+  0%, 100% { transform: scale(1); }
+  50% { transform: scale(1.05); }
+}
+
+.successHeader h1 {
+  font-size: 36px;
+  font-weight: 700;
+  color: #1a202c;
+  margin: 0 0 8px 0;
+  background: linear-gradient(135deg, #0066FF 0%, #4f46e5 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.successHeader p {
+  color: #64748b;
+  font-size: 18px;
+  margin: 0;
+}
+
+/* Account Card */
+.accountCard {
+  background: white;
+  border-radius: 16px;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.1);
+  border: 1px solid #e2e8f0;
+  margin-bottom: 24px;
+}
+
+.accountInfo {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 16px;
+}
+
+.infoItem {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 14px;
+}
+
+.infoItem strong {
+  color: #374151;
+  font-weight: 600;
+}
+
+.idStatus {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  color: #16a34a;
+  font-weight: 500;
+  font-size: 12px;
+}
+
+/* Steps Card */
+.stepsCard {
+  background: white;
+  border-radius: 16px;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.1);
+  border: 1px solid #e2e8f0;
+  margin-bottom: 24px;
+}
+
+.stepsList {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.stepItem {
+  display: flex;
+  align-items: flex-start;
+  gap: 16px;
+  padding: 16px;
+  background: #f8fafc;
+  border-radius: 12px;
+  border: 1px solid #e2e8f0;
+}
+
+.stepNumber {
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #0066FF 0%, #4f46e5 100%);
+  color: white;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 600;
+  font-size: 14px;
+  flex-shrink: 0;
+}
+
+.stepItem span {
+  color: #374151;
+  font-size: 14px;
+  line-height: 1.5;
+}
+
+/* Badge Card */
+.badgeCard {
+  background: white;
+  border-radius: 16px;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.1);
+  border: 1px solid #e2e8f0;
+  margin-bottom: 24px;
+}
+
+.badgeGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  gap: 16px;
+}
+
+.badgeItem {
+  padding: 20px;
+  border: 2px solid #e5e7eb;
+  border-radius: 12px;
+  background: #f8fafc;
+  text-align: center;
+  transition: all 0.2s ease;
+}
+
+.badgeItem:hover {
+  border-color: #0066FF;
+  background: #f0f8ff;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0, 102, 255, 0.1);
+}
+
+.badgeIcon {
+  font-size: 32px;
+  margin-bottom: 12px;
+}
+
+.badgeItem h3 {
+  font-size: 16px;
+  font-weight: 600;
+  color: #1a202c;
+  margin: 0 0 8px 0;
+}
+
+.badgeItem p {
+  color: #64748b;
+  font-size: 14px;
+  margin: 0 0 12px 0;
+  line-height: 1.4;
+}
+
+.badgeEarning {
+  color: #16a34a;
+  font-weight: 600;
+  font-size: 14px;
+  margin-bottom: 8px;
+}
+
+.badgeLevel {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  color: #f59e0b;
+  font-size: 12px;
+  font-weight: 500;
+}
+
+/* Free Tasks Card */
+.freeTasksCard {
+  background: linear-gradient(135deg, #f59e0b 0%, #f97316 100%);
+  color: white;
+  border: none;
+  border-radius: 16px;
+  margin-bottom: 24px;
+}
+
+.freeTasksContent {
+  display: flex;
+  align-items: center;
+  gap: 24px;
+}
+
+.freeTasksIcon {
+  flex-shrink: 0;
+  opacity: 0.9;
+}
+
+.freeTasksText h2 {
+  font-size: 24px;
+  font-weight: 700;
+  margin: 0 0 12px 0;
+}
+
+.freeTasksText p {
+  font-size: 16px;
+  margin: 0 0 16px 0;
+  opacity: 0.9;
+  line-height: 1.5;
+}
+
+.freeTasksText ul {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.freeTasksText li {
+  font-size: 14px;
+  opacity: 0.9;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+/* Stats Grid */
+.statsGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+  gap: 16px;
+  margin-bottom: 32px;
+}
+
+.statCard {
+  background: white;
+  padding: 20px;
+  border-radius: 12px;
+  border: 1px solid #e2e8f0;
+  text-align: center;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+}
+
+.statIcon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 48px;
+  height: 48px;
+  border-radius: 12px;
+  background: #f0f8ff;
+  color: #0066FF;
+  margin-bottom: 12px;
+}
+
+.statValue {
+  font-size: 24px;
+  font-weight: 700;
+  color: #1a202c;
+  margin-bottom: 4px;
+}
+
+.statLabel {
+  font-size: 12px;
+  color: #64748b;
+  font-weight: 500;
+  line-height: 1.3;
+}
+
+/* Action Buttons */
+.actionButtons {
+  display: flex;
+  gap: 16px;
+  justify-content: center;
+  margin-bottom: 32px;
+}
+
+.primaryButton {
+  background: linear-gradient(135deg, #0066FF 0%, #4f46e5 100%) !important;
+  border: none !important;
+  display: flex !important;
+  align-items: center !important;
+  gap: 8px !important;
+  box-shadow: 0 4px 16px rgba(0, 102, 255, 0.3) !important;
+}
+
+.primaryButton:hover {
+  transform: translateY(-2px) !important;
+  box-shadow: 0 8px 25px rgba(0, 102, 255, 0.4) !important;
+}
+
+/* Help Card */
+.helpCard {
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
+  border-radius: 12px;
+  text-align: center;
+}
+
+.helpCard h3 {
+  font-size: 18px;
+  font-weight: 600;
+  color: #1a202c;
+  margin: 0 0 8px 0;
+}
+
+.helpCard p {
+  color: #64748b;
+  margin: 0 0 16px 0;
+}
+
+.helpLinks {
+  display: flex;
+  gap: 16px;
+  justify-content: center;
+}
+
+.helpLink {
+  color: #0066FF;
+  text-decoration: none;
+  font-weight: 500;
+  font-size: 14px;
+  transition: color 0.2s ease;
+}
+
+.helpLink:hover {
+  color: #4f46e5;
+  text-decoration: underline;
+}
+
+/* Mobile Responsive */
+@media (max-width: 768px) {
+  .container {
+    padding: 16px;
+  }
+  
+  .successHeader h1 {
+    font-size: 28px;
+  }
+  
+  .successIcon {
+    width: 80px;
+    height: 80px;
+  }
+  
+  .accountInfo {
+    grid-template-columns: 1fr;
+    gap: 12px;
+  }
+  
+  .badgeGrid {
+    grid-template-columns: 1fr;
+    gap: 12px;
+  }
+  
+  .freeTasksContent {
+    flex-direction: column;
+    text-align: center;
+  }
+  
+  .statsGrid {
+    grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+    gap: 12px;
+  }
+  
+  .statCard {
+    padding: 16px;
+  }
+  
+  .statIcon {
+    width: 40px;
+    height: 40px;
+  }
+  
+  .statValue {
+    font-size: 20px;
+  }
+  
+  .actionButtons {
+    flex-direction: column;
+  }
+  
+  .helpLinks {
+    flex-direction: column;
+    gap: 8px;
+  }
+}
