@@ -1,5 +1,6 @@
 const { v4: uuidv4 } = require('uuid');
 const jwt = require('jsonwebtoken');
+const bcrypt = require('bcrypt');
 const { prisma, withTransaction } = require('../config/database');
 
 /**
@@ -59,7 +60,9 @@ async registerEmployer(req, res) {
         website,
         description,
         businessCategory,
-        expectedTaskVolume
+        expectedTaskVolume,
+        password,
+        confirmPassword
       } = req.body;
       
       console.log('🏢 Employer registration attempt:', { name, phone, employerType, businessCategory });
@@ -80,6 +83,61 @@ async registerEmployer(req, res) {
           error: 'User already exists',
           message: 'A user with this phone number or email already exists'
         });
+      }
+
+      // Validate and hash password if provided
+      let hashedPassword = null;
+      let passwordSet = false;
+      
+      if (password) {
+        // Password validation
+        if (password.length < 8) {
+          return res.status(400).json({
+            success: false,
+            error: 'Invalid password',
+            message: 'Password must be at least 8 characters long'
+          });
+        }
+
+        if (!/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)/.test(password)) {
+          return res.status(400).json({
+            success: false,
+            error: 'Invalid password',
+            message: 'Password must contain at least one uppercase letter, one lowercase letter, and one number'
+          });
+        }
+
+        if (password !== confirmPassword) {
+          return res.status(400).json({
+            success: false,
+            error: 'Password mismatch',
+            message: 'Password and confirm password do not match'
+          });
+        }
+
+        // Email is required for password login
+        if (!email) {
+          return res.status(400).json({
+            success: false,
+            error: 'Email required',
+            message: 'Email is required when setting up a password'
+          });
+        }
+
+        // Hash password
+        try {
+          const saltRounds = 12;
+          hashedPassword = await bcrypt.hash(password, saltRounds);
+          passwordSet = true;
+          console.log('✅ Employer password hashed successfully');
+        } catch (hashError) {
+          console.error('❌ Employer password hashing failed:', hashError);
+          return res.status(500).json({
+            success: false,
+            error: 'Password processing failed',
+            message: 'Unable to process password. Please try again.'
+          });
+        }
       }
       
       const convertUserType = (type) => {
@@ -112,7 +170,10 @@ async registerEmployer(req, res) {
             name: name.trim(),
             phone: phone.trim(),
             email: email ? email.trim().toLowerCase() : null,
-            userType: convertUserType('employer') // This should be 'EMPLOYER' but check your enum
+            userType: convertUserType('employer'), // This should be 'EMPLOYER' but check your enum
+            password: hashedPassword,
+            passwordSet: passwordSet,
+            lastPasswordChange: passwordSet ? new Date() : null
           }
         });
   

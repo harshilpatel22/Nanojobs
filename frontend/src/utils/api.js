@@ -254,6 +254,31 @@ export const authAPI = {
     return response.data;
   },
 
+  loginWithEmail: async (email, password) => {
+    const response = await apiClient.post('/auth/login-email', { email, password });
+    return response.data;
+  },
+
+  setPassword: async (phone, email, password, confirmPassword) => {
+    const response = await apiClient.post('/auth/set-password', { 
+      phone, 
+      email, 
+      password, 
+      confirmPassword 
+    });
+    return response.data;
+  },
+
+  changePassword: async (email, currentPassword, newPassword, confirmPassword) => {
+    const response = await apiClient.post('/auth/change-password', { 
+      email, 
+      currentPassword, 
+      newPassword, 
+      confirmPassword 
+    });
+    return response.data;
+  },
+
   checkAuthStatus: async (sessionId) => {
     const response = await apiClient.get('/auth/status', { 
       params: { sessionId } 

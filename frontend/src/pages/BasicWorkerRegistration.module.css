@@ -223,6 +223,87 @@
   font-style: italic;
 }
 
+.fileInfo {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 12px;
+  background: #f0fdf4;
+  border: 1px solid #bbf7d0;
+  border-radius: 8px;
+  margin-top: 8px;
+  color: #166534;
+  font-size: 14px;
+}
+
+.removeFile {
+  background: none;
+  border: none;
+  color: #ef4444;
+  cursor: pointer;
+  font-size: 12px;
+  padding: 2px 6px;
+  border-radius: 4px;
+  transition: background-color 0.2s ease;
+  margin-left: auto;
+}
+
+.removeFile:hover {
+  background: #fef2f2;
+}
+
+/* Password Strength Indicator */
+.passwordStrength {
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
+  border-radius: 8px;
+  padding: 16px;
+  margin: 20px 0;
+}
+
+.passwordStrength h4 {
+  font-size: 14px;
+  font-weight: 600;
+  color: #374151;
+  margin: 0 0 12px 0;
+}
+
+.passwordStrength ul {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.passwordStrength li {
+  font-size: 13px;
+  color: #64748b;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  transition: color 0.2s ease;
+}
+
+.passwordStrength li.valid {
+  color: #059669;
+  font-weight: 500;
+}
+
+.passwordStrength li::before {
+  content: '';
+  width: 4px;
+  height: 4px;
+  border-radius: 50%;
+  background: #cbd5e1;
+  flex-shrink: 0;
+}
+
+.passwordStrength li.valid::before {
+  background: #059669;
+}
+
 /* Skills Section */
 .skillsSection {
   display: flex;

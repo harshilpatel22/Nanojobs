@@ -115,6 +115,54 @@ const handleIdDocumentUpload = (req, res, next) => {
 };
 
 /**
+ * Middleware specifically for Aadhaar document upload during registration
+ */
+const handleAadhaarUpload = (req, res, next) => {
+  const uploadSingle = upload.single('aadhaarDocument');
+  
+  uploadSingle(req, res, (err) => {
+    if (err) {
+      console.error('Aadhaar document upload error:', err);
+      
+      if (err instanceof multer.MulterError) {
+        if (err.code === 'LIMIT_FILE_SIZE') {
+          return res.status(400).json({
+            success: false,
+            error: 'File too large',
+            message: 'Aadhaar document file size must be less than 5MB'
+          });
+        }
+        if (err.code === 'LIMIT_FILE_COUNT') {
+          return res.status(400).json({
+            success: false,
+            error: 'Too many files',
+            message: 'Please upload only one Aadhaar document file'
+          });
+        }
+      }
+      
+      return res.status(400).json({
+        success: false,
+        error: 'File upload failed',
+        message: err.message || 'Unable to upload Aadhaar document'
+      });
+    }
+
+    // Add file info to request for logging
+    if (req.file) {
+      console.log('✅ Aadhaar document uploaded:', {
+        filename: req.file.filename,
+        originalname: req.file.originalname,
+        size: req.file.size,
+        mimetype: req.file.mimetype
+      });
+    }
+
+    next();
+  });
+};
+
+/**
  * Validate ID document file
  */
 const validateIdDocument = (req, res, next) => {
@@ -229,6 +277,7 @@ const serveIdDocument = (req, res) => {
 
 module.exports = {
   handleIdDocumentUpload,
+  handleAadhaarUpload,
   validateIdDocument,
   cleanupOnError,
   getIdDocumentInfo,

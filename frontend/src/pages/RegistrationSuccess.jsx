@@ -18,7 +18,7 @@ const RegistrationSuccess = () => {
   const { workerData, nextSteps } = location.state || {};
 
   const handleGoToDashboard = () => {
-    navigate('/dashboard');
+    navigate('/login');
   };
 
   const handleLogin = () => {
@@ -185,7 +185,7 @@ const RegistrationSuccess = () => {
           className={styles.primaryButton}
         >
           <Star size={20} />
-          Go to Dashboard
+          Login with Your Phone Number
           <ArrowRight size={20} />
         </Button>
         
@@ -194,7 +194,7 @@ const RegistrationSuccess = () => {
           onClick={handleLogin}
           size="lg"
         >
-          Login to Your Account
+          Continue to Login
         </Button>
       </div>
 

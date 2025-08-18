@@ -2,6 +2,7 @@ const express = require('express');
 const { body, validationResult } = require('express-validator');
 const jwt = require('jsonwebtoken');
 const axios = require('axios');
+const bcrypt = require('bcrypt');
 const { v4: uuidv4 } = require('uuid');
 const { prisma } = require('../config/database');
 
@@ -765,6 +766,364 @@ router.post('/resend-otp',
         success: false,
         error: 'Resend failed',
         message: 'Unable to resend OTP. Please try again.'
+      });
+    }
+  }
+);
+
+/**
+ * Email and Password Login
+ * POST /api/auth/login-email
+ */
+router.post('/login-email',
+  [
+    body('email')
+      .isEmail()
+      .normalizeEmail()
+      .withMessage('Please provide a valid email address'),
+    body('password')
+      .isLength({ min: 6 })
+      .withMessage('Password must be at least 6 characters long')
+  ],
+  handleValidationErrors,
+  async (req, res) => {
+    try {
+      const { email, password } = req.body;
+      
+      console.log(`🔐 Email login attempt for: ${email}`);
+      
+      // Check if user exists with email
+      const user = await prisma.user.findUnique({
+        where: { email },
+        include: {
+          worker: true,
+          employer: true
+        }
+      });
+      
+      if (!user) {
+        return res.status(401).json({
+          success: false,
+          error: 'Invalid credentials',
+          message: 'Invalid email or password. Please check your credentials.'
+        });
+      }
+      
+      if (!user.isActive) {
+        return res.status(403).json({
+          success: false,
+          error: 'Account disabled',
+          message: 'Your account has been disabled. Please contact support.'
+        });
+      }
+      
+      // Check if user has a password set
+      if (!user.password || !user.passwordSet) {
+        return res.status(401).json({
+          success: false,
+          error: 'Password not set',
+          message: 'Please set up a password for your account or use phone login.'
+        });
+      }
+      
+      // Verify password using bcrypt
+      const isValidPassword = await bcrypt.compare(password, user.password);
+      
+      if (!isValidPassword) {
+        return res.status(401).json({
+          success: false,
+          error: 'Invalid credentials',
+          message: 'Invalid email or password. Please check your credentials.'
+        });
+      }
+      
+      // Determine user type and get specific user data
+      let userType, userData, userId;
+      
+      if (user.worker) {
+        userType = 'worker';
+        userData = user.worker;
+        userId = user.worker.id;
+      } else if (user.employer) {
+        userType = 'employer';
+        userData = user.employer;
+        userId = user.employer.id;
+      } else {
+        // Fallback to user type from user table
+        userType = user.userType ? user.userType.toLowerCase() : 'worker';
+        userData = null;
+        userId = user.id;
+      }
+      
+      // Generate JWT session token
+      let sessionToken;
+      try {
+        sessionToken = generateSessionToken({
+          userId: userId,
+          phone: user.phone,
+          userType: userType
+        });
+      } catch (jwtError) {
+        console.error('❌ JWT generation failed:', jwtError);
+        return res.status(500).json({
+          success: false,
+          error: 'Token generation failed',
+          message: 'Unable to create session. Please try again.'
+        });
+      }
+      
+      // Create session in database
+      try {
+        await prisma.session.create({
+          data: {
+            userId: user.id,
+            token: sessionToken,
+            isActive: true,
+            expiresAt: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000), // 30 days
+            lastUsed: new Date(),
+            metadata: {
+              loginMethod: 'email',
+              email: email,
+              userAgent: req.get('User-Agent'),
+              ip: req.ip,
+              loginSuccessful: true
+            }
+          }
+        });
+      } catch (sessionError) {
+        console.error('❌ Session creation failed:', sessionError);
+        return res.status(500).json({
+          success: false,
+          error: 'Session creation failed',
+          message: 'Login failed. Please try again.'
+        });
+      }
+      
+      console.log(`✅ Email login successful: ${email} as ${userType} (ID: ${userId})`);
+      
+      res.json({
+        success: true,
+        message: 'Login successful',
+        data: {
+          sessionToken: sessionToken,
+          user: {
+            id: user.id,
+            name: user.name,
+            phone: user.phone,
+            email: user.email,
+            userType: user.userType
+          },
+          userType: userType,
+          userId: userId,
+          profile: userData
+        }
+      });
+      
+    } catch (error) {
+      console.error('❌ Email login error:', error);
+      res.status(500).json({
+        success: false,
+        error: 'Login failed',
+        message: 'An error occurred during login. Please try again.'
+      });
+    }
+  }
+);
+
+/**
+ * Set Password for Email Login
+ * POST /api/auth/set-password
+ */
+router.post('/set-password',
+  [
+    body('phone')
+      .trim()
+      .matches(/^[6-9]\d{9}$/)
+      .withMessage('Please provide a valid 10-digit Indian mobile number'),
+    body('email')
+      .isEmail()
+      .normalizeEmail()
+      .withMessage('Please provide a valid email address'),
+    body('password')
+      .isLength({ min: 8 })
+      .withMessage('Password must be at least 8 characters long')
+      .matches(/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)/)
+      .withMessage('Password must contain at least one uppercase letter, one lowercase letter, and one number'),
+    body('confirmPassword')
+      .custom((value, { req }) => {
+        if (value !== req.body.password) {
+          throw new Error('Password confirmation does not match password');
+        }
+        return true;
+      })
+  ],
+  handleValidationErrors,
+  async (req, res) => {
+    try {
+      const { phone, email, password } = req.body;
+      
+      console.log(`🔐 Setting password for user: ${phone} / ${email}`);
+      
+      // Find user by phone number (primary identifier)
+      const user = await prisma.user.findUnique({
+        where: { phone }
+      });
+      
+      if (!user) {
+        return res.status(404).json({
+          success: false,
+          error: 'User not found',
+          message: 'No account found with this phone number.'
+        });
+      }
+      
+      // Hash the password
+      const saltRounds = 12;
+      const hashedPassword = await bcrypt.hash(password, saltRounds);
+      
+      // Update user with password and email
+      const updatedUser = await prisma.user.update({
+        where: { id: user.id },
+        data: {
+          email: email,
+          password: hashedPassword,
+          passwordSet: true,
+          lastPasswordChange: new Date()
+        }
+      });
+      
+      console.log(`✅ Password set successfully for user: ${user.phone}`);
+      
+      res.json({
+        success: true,
+        message: 'Password set successfully. You can now login with email and password.',
+        data: {
+          user: {
+            id: updatedUser.id,
+            name: updatedUser.name,
+            phone: updatedUser.phone,
+            email: updatedUser.email,
+            passwordSet: updatedUser.passwordSet
+          }
+        }
+      });
+      
+    } catch (error) {
+      console.error('❌ Set password error:', error);
+      
+      if (error.code === 'P2002' && error.meta?.target?.includes('email')) {
+        return res.status(400).json({
+          success: false,
+          error: 'Email already exists',
+          message: 'This email is already associated with another account.'
+        });
+      }
+      
+      res.status(500).json({
+        success: false,
+        error: 'Password setup failed',
+        message: 'An error occurred while setting up your password. Please try again.'
+      });
+    }
+  }
+);
+
+/**
+ * Change Password
+ * POST /api/auth/change-password
+ */
+router.post('/change-password',
+  [
+    body('email')
+      .isEmail()
+      .normalizeEmail()
+      .withMessage('Please provide a valid email address'),
+    body('currentPassword')
+      .notEmpty()
+      .withMessage('Current password is required'),
+    body('newPassword')
+      .isLength({ min: 8 })
+      .withMessage('New password must be at least 8 characters long')
+      .matches(/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)/)
+      .withMessage('New password must contain at least one uppercase letter, one lowercase letter, and one number'),
+    body('confirmPassword')
+      .custom((value, { req }) => {
+        if (value !== req.body.newPassword) {
+          throw new Error('Password confirmation does not match new password');
+        }
+        return true;
+      })
+  ],
+  handleValidationErrors,
+  async (req, res) => {
+    try {
+      const { email, currentPassword, newPassword } = req.body;
+      
+      console.log(`🔐 Password change request for: ${email}`);
+      
+      // Find user by email
+      const user = await prisma.user.findUnique({
+        where: { email }
+      });
+      
+      if (!user) {
+        return res.status(404).json({
+          success: false,
+          error: 'User not found',
+          message: 'No account found with this email address.'
+        });
+      }
+      
+      // Check if user has a password set
+      if (!user.password || !user.passwordSet) {
+        return res.status(400).json({
+          success: false,
+          error: 'No password set',
+          message: 'Please set up a password first using the set-password endpoint.'
+        });
+      }
+      
+      // Verify current password
+      const isCurrentPasswordValid = await bcrypt.compare(currentPassword, user.password);
+      
+      if (!isCurrentPasswordValid) {
+        return res.status(401).json({
+          success: false,
+          error: 'Invalid current password',
+          message: 'Current password is incorrect.'
+        });
+      }
+      
+      // Hash the new password
+      const saltRounds = 12;
+      const hashedNewPassword = await bcrypt.hash(newPassword, saltRounds);
+      
+      // Update user with new password
+      await prisma.user.update({
+        where: { id: user.id },
+        data: {
+          password: hashedNewPassword,
+          lastPasswordChange: new Date()
+        }
+      });
+      
+      console.log(`✅ Password changed successfully for user: ${email}`);
+      
+      res.json({
+        success: true,
+        message: 'Password changed successfully.',
+        data: {
+          passwordChanged: true,
+          lastPasswordChange: new Date()
+        }
+      });
+      
+    } catch (error) {
+      console.error('❌ Change password error:', error);
+      res.status(500).json({
+        success: false,
+        error: 'Password change failed',
+        message: 'An error occurred while changing your password. Please try again.'
       });
     }
   }

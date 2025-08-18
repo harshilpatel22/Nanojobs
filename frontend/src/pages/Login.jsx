@@ -12,7 +12,9 @@ import {
   RefreshCw,
   ArrowLeft,
   Sparkles,
-  Zap
+  Zap,
+  Mail,
+  Lock
 } from 'lucide-react';
 import toast from 'react-hot-toast';
 
@@ -44,9 +46,12 @@ const Login = ({ onWorkerSuccess, onEmployerSuccess }) => {
   const from = location.state?.from?.pathname || '/';
   
   // Form state
-  const [step, setStep] = useState('phone'); // 'phone' | 'otp'
+  const [loginMethod, setLoginMethod] = useState('phone'); // 'phone' | 'email'
+  const [step, setStep] = useState('phone'); // 'phone' | 'otp' | 'email'
   const [formData, setFormData] = useState({
     phone: '',
+    email: '',
+    password: '',
     otp: ['', '', '', '', '', ''] // Individual OTP digits
   });
   
@@ -92,6 +97,36 @@ const Login = ({ onWorkerSuccess, onEmployerSuccess }) => {
     // Clear phone error when user starts typing
     if (errors.phone) {
       setErrors(prev => ({ ...prev, phone: null }));
+    }
+  };
+
+  /**
+   * Handle email input changes
+   */
+  const handleEmailChange = (value) => {
+    setFormData(prev => ({
+      ...prev,
+      email: value
+    }));
+    
+    // Clear email error when user starts typing
+    if (errors.email) {
+      setErrors(prev => ({ ...prev, email: null }));
+    }
+  };
+
+  /**
+   * Handle password input changes
+   */
+  const handlePasswordChange = (value) => {
+    setFormData(prev => ({
+      ...prev,
+      password: value
+    }));
+    
+    // Clear password error when user starts typing
+    if (errors.password) {
+      setErrors(prev => ({ ...prev, password: null }));
     }
   };
 
@@ -162,6 +197,14 @@ const Login = ({ onWorkerSuccess, onEmployerSuccess }) => {
   const validatePhone = (phone) => {
     const phoneRegex = /^[6-9]\d{9}$/;
     return phoneRegex.test(phone);
+  };
+
+  /**
+   * Validate email address
+   */
+  const validateEmail = (email) => {
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    return emailRegex.test(email);
   };
 
   /**
@@ -296,6 +339,96 @@ const Login = ({ onWorkerSuccess, onEmployerSuccess }) => {
         // Clear OTP inputs on error
         setFormData(prev => ({ ...prev, otp: ['', '', '', '', '', ''] }));
         otpRefs.current[0]?.focus();
+      } else {
+        toast.error(error.message || '❌ Login failed. Please try again.');
+      }
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  /**
+   * Handle email/password login
+   */
+  const handleEmailLogin = async (e) => {
+    e.preventDefault();
+    
+    const email = formData.email.trim();
+    const password = formData.password.trim();
+    
+    // Validate email and password
+    if (!email) {
+      setErrors({ email: 'Email is required' });
+      return;
+    }
+    
+    if (!validateEmail(email)) {
+      setErrors({ email: 'Please enter a valid email address' });
+      return;
+    }
+    
+    if (!password) {
+      setErrors({ password: 'Password is required' });
+      return;
+    }
+    
+    if (password.length < 6) {
+      setErrors({ password: 'Password must be at least 6 characters' });
+      return;
+    }
+
+    setIsLoading(true);
+    setErrors({});
+
+    try {
+      console.log('🔐 Email login attempt for:', email);
+      
+      const response = await authAPI.loginWithEmail(email, password);
+      
+      if (response.success) {
+        const { sessionToken, user, userType, userId } = response.data;
+        
+        console.log('✅ Email login successful:', { userType, userId });
+        
+        // Show success animation
+        setShowSuccess(true);
+        
+        // Store session based on user type
+        setTimeout(() => {
+          if (userType === 'worker') {
+            storageUtils.setWorkerSession(sessionToken, userId);
+            toast.success('🎉 Welcome back! Logged in as Worker');
+            
+            if (onWorkerSuccess) {
+              onWorkerSuccess(sessionToken, userId);
+            } else {
+              navigate('/dashboard');
+            }
+          } else if (userType === 'employer') {
+            storageUtils.setEmployerSession(sessionToken, userId);
+            toast.success('🎉 Welcome back! Logged in as Employer');
+            
+            if (onEmployerSuccess) {
+              onEmployerSuccess(sessionToken, userId);
+            } else {
+              navigate('/employer-dashboard');
+            }
+          } else {
+            throw new Error('Unknown user type');
+          }
+        }, 1000); // Delay for success animation
+        
+      } else {
+        throw new Error(response.message || 'Invalid email or password');
+      }
+      
+    } catch (error) {
+      console.error('❌ Email login error:', error);
+      
+      if (error.message.includes('Invalid') || error.message.includes('not found')) {
+        setErrors({ 
+          email: 'Invalid email or password. Please check your credentials.' 
+        });
       } else {
         toast.error(error.message || '❌ Login failed. Please try again.');
       }
@@ -487,11 +620,15 @@ const Login = ({ onWorkerSuccess, onEmployerSuccess }) => {
           
           <div className={styles.headerContent}>
             <h2 className={styles.welcomeTitle}>
-              {step === 'phone' ? 'Welcome Back!' : 'Verify Your Number'}
+              {step === 'phone' ? 'Welcome Back!' : 
+               step === 'email' ? 'Welcome Back!' : 
+               'Verify Your Number'}
             </h2>
             <p className={styles.subtitle}>
               {step === 'phone' 
                 ? 'Sign in to continue your earning journey'
+                : step === 'email'
+                ? 'Sign in with your email and password'
                 : `We've sent a code to ${formData.phone}`
               }
             </p>
@@ -512,6 +649,28 @@ const Login = ({ onWorkerSuccess, onEmployerSuccess }) => {
             )}
 
             <CardBody className={styles.cardBody}>
+              {/* Login Method Toggle */}
+              {(step === 'phone' || step === 'email') && (
+                <div className={styles.loginMethodToggle}>
+                  <button
+                    type="button"
+                    className={`${styles.toggleButton} ${step === 'phone' ? styles.active : ''}`}
+                    onClick={() => setStep('phone')}
+                  >
+                    <Phone size={16} />
+                    <span>Phone + OTP</span>
+                  </button>
+                  <button
+                    type="button"
+                    className={`${styles.toggleButton} ${step === 'email' ? styles.active : ''}`}
+                    onClick={() => setStep('email')}
+                  >
+                    <Mail size={16} />
+                    <span>Email + Password</span>
+                  </button>
+                </div>
+              )}
+
               {step === 'phone' ? (
                 // Phone Number Step
                 <form onSubmit={handlePhoneSubmit} className={styles.form}>
@@ -578,7 +737,7 @@ const Login = ({ onWorkerSuccess, onEmployerSuccess }) => {
                     )}
                   </Button>
                 </form>
-              ) : (
+              ) : step === 'otp' ? (
                 // OTP Verification Step
                 <form onSubmit={handleOTPSubmit} className={styles.form}>
                   <div className={styles.stepIndicator}>
@@ -691,7 +850,86 @@ const Login = ({ onWorkerSuccess, onEmployerSuccess }) => {
                     )}
                   </Button>
                 </form>
-              )}
+              ) : step === 'email' ? (
+                // Email + Password Step  
+                <form onSubmit={handleEmailLogin} className={styles.form}>
+                  <div className={styles.formHeader}>
+                    <div className={styles.formIcon}>
+                      <Mail size={24} />
+                    </div>
+                    <h3>Sign In with Email</h3>
+                    <p>Enter your email and password to continue</p>
+                  </div>
+
+                  <div className={styles.inputGroup}>
+                    <div className={styles.emailInputWrapper}>
+                      <Mail size={18} className={styles.inputIcon} />
+                      <input
+                        type="email"
+                        value={formData.email}
+                        onChange={(e) => handleEmailChange(e.target.value)}
+                        placeholder="Enter your email address"
+                        className={`${styles.emailInput} ${errors.email ? styles.error : ''}`}
+                        autoComplete="email"
+                        autoFocus
+                      />
+                    </div>
+                    {errors.email && (
+                      <div className={styles.errorMessage}>
+                        <AlertCircle size={16} />
+                        <span>{errors.email}</span>
+                      </div>
+                    )}
+                  </div>
+
+                  <div className={styles.inputGroup}>
+                    <div className={styles.passwordInputWrapper}>
+                      <Lock size={18} className={styles.inputIcon} />
+                      <input
+                        type="password"
+                        value={formData.password}
+                        onChange={(e) => handlePasswordChange(e.target.value)}
+                        placeholder="Enter your password"
+                        className={`${styles.passwordInput} ${errors.password ? styles.error : ''}`}
+                        autoComplete="current-password"
+                      />
+                    </div>
+                    {errors.password && (
+                      <div className={styles.errorMessage}>
+                        <AlertCircle size={16} />
+                        <span>{errors.password}</span>
+                      </div>
+                    )}
+                    <div className={styles.passwordHint}>
+                      <Shield size={14} />
+                      <span>Your password is encrypted and secure</span>
+                    </div>
+                  </div>
+
+                  <Button
+                    type="submit"
+                    size="lg"
+                    fullWidth
+                    loading={isLoading}
+                    disabled={!formData.email || !formData.password}
+                    className={styles.submitButton}
+                  >
+                    {isLoading ? (
+                      <>
+                        <span>Signing In</span>
+                        <div className={styles.dots}>
+                          <span></span><span></span><span></span>
+                        </div>
+                      </>
+                    ) : (
+                      <>
+                        <span>Sign In</span>
+                        <ArrowRight size={18} />
+                      </>
+                    )}
+                  </Button>
+                </form>
+              ) : null}
             </CardBody>
           </Card>
         </div>

@@ -17,7 +17,8 @@ const {
 // Import middleware
 const authMiddleware = require('../middleware/auth');
 const { 
-  handleIdDocumentUpload, 
+  handleIdDocumentUpload,
+  handleAadhaarUpload,
   validateIdDocument,
   serveIdDocument 
 } = require('../middleware/idDocumentUpload');
@@ -34,14 +35,13 @@ router.post('/register-basic-digilocker',
 
 /**
  * @route   POST /api/workers/register-basic
- * @desc    Register worker with basic info + ID verification (with file upload)
+ * @desc    Register worker with basic info + ID verification (supports DigiLocker, manual upload, or skip)
  * @access  Public
- * @body    name, phone, email, city, state, pincode, dateOfBirth, idDocumentType, idDocumentNumber, skills, experienceLevel, preferredCategories
- * @files   idDocument - Single ID document file (Aadhar/DL photo or PDF)
+ * @body    name, phone, email, city, state, pincode, dateOfBirth, aadhaarNumber, tempUserId, isDigiLockerVerified, verificationSkipped, skills, experienceLevel, preferredCategories
+ * @files   aadhaarDocument - Optional Aadhaar document file (photo or PDF)
  */
 router.post('/register-basic',
-  handleIdDocumentUpload,
-  validateIdDocument,
+  handleAadhaarUpload,
   registerBasicWorker
 );
 

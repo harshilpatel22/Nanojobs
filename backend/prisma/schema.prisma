@@ -120,6 +120,12 @@ model User {
   name      String
   userType  UserType @default(WORKER)
   isActive  Boolean  @default(true)
+  
+  // Password fields for email login
+  password     String? // Hashed password
+  passwordSet  Boolean @default(false) // Track if password has been set
+  lastPasswordChange DateTime? // Track when password was last changed
+  
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
@@ -217,6 +223,7 @@ model Worker {
   idDocumentUrl         String?           // File upload URL
   isIdVerified          Boolean           @default(false)
   idVerifiedAt          DateTime?
+  verificationMethod    String?           // 'digilocker', 'manual_upload', 'manual_entry', 'skipped', 'pending'
   
   // Single Badge System (Reverted)
   badge                 BadgeLevel         @default(BRONZE)

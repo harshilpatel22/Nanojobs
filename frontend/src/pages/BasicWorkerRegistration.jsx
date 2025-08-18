@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import toast from 'react-hot-toast';
-import { User, MapPin, CreditCard, Upload, CheckCircle2, AlertCircle } from 'lucide-react';
+import { User, MapPin, CreditCard, Upload, CheckCircle2, AlertCircle, ArrowRight, Lock } from 'lucide-react';
 
 import Button from '../components/common/Button';
 import Card, { CardHeader, CardBody } from '../components/common/Card';
@@ -28,13 +28,18 @@ const BasicWorkerRegistration = () => {
     state: '',
     pincode: '',
     dateOfBirth: '',
-    aadhaarNumber: ''
+    aadhaarNumber: '',
+    password: '',
+    confirmPassword: ''
   });
+  
+  const [manualAadhaarFile, setManualAadhaarFile] = useState(null);
   
   const [errors, setErrors] = useState({});
   const [tempUserId, setTempUserId] = useState(null);
   const [digilockerVerified, setDigilockerVerified] = useState(false);
   const [verificationData, setVerificationData] = useState(null);
+  const [verificationSkipped, setVerificationSkipped] = useState(false);
 
   // Generate temporary user ID for DigiLocker verification
   useEffect(() => {
@@ -87,8 +92,8 @@ const BasicWorkerRegistration = () => {
 
   const handleSkipVerification = () => {
     console.log('⏭️ User chose to skip DigiLocker verification');
-    toast.info('You can complete verification later from your profile');
-    // Stay on step 2 since there's no step 3 anymore
+    setVerificationSkipped(true);
+    toast('You can complete verification later from your profile. Note: Badge earning requires verification.');
   };
 
   const validateStep = (stepNumber) => {
@@ -105,14 +110,38 @@ const BasicWorkerRegistration = () => {
     }
     
     if (stepNumber === 2) {
-      // DigiLocker verification is optional but recommended
-      if (!digilockerVerified && !formData.aadhaarNumber.trim()) {
-        newErrors.verification = 'Please complete Aadhaar verification or provide Aadhaar number manually';
+      // Allow proceeding if verification was skipped OR if user provided manual verification
+      if (!verificationSkipped && !digilockerVerified && !formData.aadhaarNumber.trim() && !manualAadhaarFile) {
+        newErrors.verification = 'Please complete Aadhaar verification, provide Aadhaar number manually, upload Aadhaar document, or skip for now';
       }
       
       // Only validate Aadhaar format if manually entered (not DigiLocker verified)
       if (!digilockerVerified && formData.aadhaarNumber && !/^\d{12}$/.test(formData.aadhaarNumber.replace(/\s/g, ''))) {
         newErrors.aadhaarNumber = 'Please enter a valid 12-digit Aadhaar number';
+      }
+    }
+    
+    if (stepNumber === 3) {
+      // Password validation
+      if (!formData.password) {
+        newErrors.password = 'Password is required';
+      } else if (formData.password.length < 8) {
+        newErrors.password = 'Password must be at least 8 characters long';
+      } else if (!/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)/.test(formData.password)) {
+        newErrors.password = 'Password must contain at least one uppercase letter, one lowercase letter, and one number';
+      }
+      
+      if (!formData.confirmPassword) {
+        newErrors.confirmPassword = 'Please confirm your password';
+      } else if (formData.password !== formData.confirmPassword) {
+        newErrors.confirmPassword = 'Passwords do not match';
+      }
+      
+      // Email is required for password login
+      if (!formData.email.trim()) {
+        newErrors.email = 'Email is required for account setup';
+      } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.email)) {
+        newErrors.email = 'Please enter a valid email address';
       }
     }
     
@@ -140,27 +169,40 @@ const BasicWorkerRegistration = () => {
       return;
     }
     
+    // If not on final step, go to next step
+    if (step < 3) {
+      setStep(step + 1);
+      return;
+    }
+    
     console.log('✅ Validation passed, proceeding with registration...');
     setIsLoading(true);
     
     try {
       // Prepare registration data
-      const registrationData = {
-        ...formData,
-        tempUserId: tempUserId,
-        aadhaarNumber: formData.aadhaarNumber || (verificationData?.aadhaarNumber),
-        isDigiLockerVerified: digilockerVerified
-      };
+      const registrationData = new FormData();
+      
+      // Add form fields
+      Object.keys(formData).forEach(key => {
+        registrationData.append(key, formData[key]);
+      });
+      
+      registrationData.append('tempUserId', tempUserId);
+      registrationData.append('aadhaarNumber', formData.aadhaarNumber || (verificationData?.aadhaarNumber) || '');
+      registrationData.append('isDigiLockerVerified', digilockerVerified);
+      registrationData.append('verificationSkipped', verificationSkipped);
+      
+      // Add manual Aadhaar file if provided
+      if (manualAadhaarFile) {
+        registrationData.append('aadhaarDocument', manualAadhaarFile);
+      }
 
       console.log('📝 Submitting registration data:', registrationData);
 
-      // Submit registration using DigiLocker-only endpoint
-      const response = await fetch('/api/basic-workers/register-basic-digilocker', {
+      // Submit registration using unified endpoint that handles both DigiLocker and manual uploads
+      const response = await fetch('/api/basic-workers/register-basic', {
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify(registrationData)
+        body: registrationData
       });
 
       let result;
@@ -220,6 +262,10 @@ const BasicWorkerRegistration = () => {
         <div className={`${styles.step} ${step >= 2 ? styles.active : ''}`}>
           <div className={styles.stepNumber}>2</div>
           <span>ID Verification</span>
+        </div>
+        <div className={`${styles.step} ${step >= 3 ? styles.active : ''}`}>
+          <div className={styles.stepNumber}>3</div>
+          <span>Account Setup</span>
         </div>
       </div>
 
@@ -355,6 +401,8 @@ const BasicWorkerRegistration = () => {
                     <div className={styles.divider}>
                       <span>OR</span>
                     </div>
+                    
+                    {/* Manual Aadhaar Number Entry */}
                     <div className={styles.formGroup}>
                       <label>Enter Aadhaar Number Manually</label>
                       <input
@@ -374,6 +422,55 @@ const BasicWorkerRegistration = () => {
                         Manual entry requires additional verification later
                       </small>
                     </div>
+                    
+                    {/* Manual Aadhaar Document Upload */}
+                    <div className={styles.divider}>
+                      <span>OR</span>
+                    </div>
+                    
+                    <div className={styles.formGroup}>
+                      <label>Upload Aadhaar Document</label>
+                      <div className={styles.fileUpload}>
+                        <input
+                          type="file"
+                          id="aadhaarFile"
+                          accept="image/*,.pdf"
+                          onChange={(e) => {
+                            const file = e.target.files[0];
+                            if (file) {
+                              // Check file size (max 5MB)
+                              if (file.size > 5 * 1024 * 1024) {
+                                toast.error('File size should not exceed 5MB');
+                                return;
+                              }
+                              setManualAadhaarFile(file);
+                              toast.success('Document uploaded successfully');
+                            }
+                          }}
+                          className={styles.fileInput}
+                        />
+                        <label htmlFor="aadhaarFile" className={styles.fileLabel}>
+                          <Upload size={20} />
+                          {manualAadhaarFile ? manualAadhaarFile.name : 'Choose Aadhaar Document'}
+                        </label>
+                      </div>
+                      {manualAadhaarFile && (
+                        <div className={styles.fileInfo}>
+                          <CheckCircle2 size={16} />
+                          <span>{manualAadhaarFile.name}</span>
+                          <button
+                            type="button"
+                            onClick={() => setManualAadhaarFile(null)}
+                            className={styles.removeFile}
+                          >
+                            Remove
+                          </button>
+                        </div>
+                      )}
+                      <small className={styles.inputNote}>
+                        Upload clear image/PDF of your Aadhaar card (max 5MB)
+                      </small>
+                    </div>
                   </div>
                 )}
                 
@@ -386,8 +483,101 @@ const BasicWorkerRegistration = () => {
                 </Button>
                 <Button 
                   type="submit"
-                  disabled={!digilockerVerified && !formData.aadhaarNumber}
+                  disabled={!digilockerVerified && !formData.aadhaarNumber && !manualAadhaarFile && !verificationSkipped}
                   size="lg"
+                >
+                  <ArrowRight size={20} />
+                  Next: Account Setup
+                </Button>
+              </div>
+            </CardBody>
+          )}
+
+          {/* Step 3: Account Setup */}
+          {step === 3 && (
+            <CardBody>
+              <CardHeader>
+                <h2><Lock size={20} /> Account Setup</h2>
+                <p>Set up your email and password for secure login</p>
+              </CardHeader>
+
+              <div className={styles.formGrid}>
+                <div className={styles.formGroup}>
+                  <label>Email Address *</label>
+                  <input
+                    type="email"
+                    name="email"
+                    value={formData.email}
+                    onChange={handleInputChange}
+                    placeholder="Enter your email address"
+                    className={errors.email ? styles.error : ''}
+                    autoComplete="email"
+                  />
+                  {errors.email && <span className={styles.errorText}>{errors.email}</span>}
+                  <small className={styles.inputNote}>
+                    You'll use this email to login to your account
+                  </small>
+                </div>
+
+                <div className={styles.formGroup}>
+                  <label>Password *</label>
+                  <input
+                    type="password"
+                    name="password"
+                    value={formData.password}
+                    onChange={handleInputChange}
+                    placeholder="Create a strong password"
+                    className={errors.password ? styles.error : ''}
+                    autoComplete="new-password"
+                  />
+                  {errors.password && <span className={styles.errorText}>{errors.password}</span>}
+                  <small className={styles.inputNote}>
+                    At least 8 characters with uppercase, lowercase, and number
+                  </small>
+                </div>
+
+                <div className={styles.formGroup}>
+                  <label>Confirm Password *</label>
+                  <input
+                    type="password"
+                    name="confirmPassword"
+                    value={formData.confirmPassword}
+                    onChange={handleInputChange}
+                    placeholder="Confirm your password"
+                    className={errors.confirmPassword ? styles.error : ''}
+                    autoComplete="new-password"
+                  />
+                  {errors.confirmPassword && <span className={styles.errorText}>{errors.confirmPassword}</span>}
+                </div>
+              </div>
+
+              <div className={styles.passwordStrength}>
+                <h4>Password Requirements:</h4>
+                <ul>
+                  <li className={formData.password.length >= 8 ? styles.valid : ''}>
+                    ✓ At least 8 characters long
+                  </li>
+                  <li className={/[A-Z]/.test(formData.password) ? styles.valid : ''}>
+                    ✓ Contains uppercase letter
+                  </li>
+                  <li className={/[a-z]/.test(formData.password) ? styles.valid : ''}>
+                    ✓ Contains lowercase letter
+                  </li>
+                  <li className={/\d/.test(formData.password) ? styles.valid : ''}>
+                    ✓ Contains number
+                  </li>
+                </ul>
+              </div>
+
+              <div className={styles.formActions}>
+                <Button variant="outline" onClick={() => setStep(2)}>
+                  Back
+                </Button>
+                <Button 
+                  type="submit"
+                  disabled={!formData.email || !formData.password || !formData.confirmPassword}
+                  size="lg"
+                  loading={isLoading}
                 >
                   <CheckCircle2 size={20} />
                   Complete Registration

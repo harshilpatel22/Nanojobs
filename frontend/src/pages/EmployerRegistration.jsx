@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { 
   Building2, User, Phone, Mail, Globe, FileText, Briefcase, ArrowRight, ArrowLeft,
-  CheckCircle2, Zap, Shield, Trophy, Sparkles, Target, Users
+  CheckCircle2, Zap, Shield, Trophy, Sparkles, Target, Users, Lock
 } from 'lucide-react';
 import toast from 'react-hot-toast';
 
@@ -29,7 +29,9 @@ const EmployerRegistration = ({ onSuccess }) => {
     website: '',
     description: '',
     businessCategory: '',
-    expectedTaskVolume: 'low'
+    expectedTaskVolume: 'low',
+    password: '',
+    confirmPassword: ''
   });
   
   // UI state
@@ -176,6 +178,22 @@ const EmployerRegistration = ({ onSuccess }) => {
       }
     }
 
+    if (step === 3) {
+      if (!formData.password) {
+        newErrors.password = 'Password is required';
+      } else if (formData.password.length < 8) {
+        newErrors.password = 'Password must be at least 8 characters long';
+      } else if (!/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)/.test(formData.password)) {
+        newErrors.password = 'Password must contain at least one uppercase letter, one lowercase letter, and one number';
+      }
+      
+      if (!formData.confirmPassword) {
+        newErrors.confirmPassword = 'Please confirm your password';
+      } else if (formData.password !== formData.confirmPassword) {
+        newErrors.confirmPassword = 'Passwords do not match';
+      }
+    }
+
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
   };
@@ -201,8 +219,14 @@ const EmployerRegistration = ({ onSuccess }) => {
    */
   const handleSubmit = async (e) => {
     e.preventDefault();
+    
+    // If not on final step, go to next step
+    if (currentStep < 3) {
+      handleNext();
+      return;
+    }
   
-    if (!validateStep(2)) {
+    if (!validateStep(3)) {
       return;
     }
   
@@ -225,7 +249,9 @@ const EmployerRegistration = ({ onSuccess }) => {
           website: formData.website.trim() || undefined,
           description: formData.description.trim() || undefined,
           businessCategory: formData.businessCategory,
-          expectedTaskVolume: formData.expectedTaskVolume
+          expectedTaskVolume: formData.expectedTaskVolume,
+          password: formData.password,
+          confirmPassword: formData.confirmPassword
         })
       });
   
@@ -288,6 +314,11 @@ const EmployerRegistration = ({ onSuccess }) => {
             <div className={`${styles.stepIndicator} ${currentStep >= 2 ? styles.active : ''}`}>
               <div className={styles.stepNumber}>2</div>
               <span>Business Details</span>
+            </div>
+            <div className={styles.stepConnector} />
+            <div className={`${styles.stepIndicator} ${currentStep >= 3 ? styles.active : ''}`}>
+              <div className={styles.stepNumber}>3</div>
+              <span>Account Setup</span>
             </div>
           </div>
         </div>
@@ -541,6 +572,95 @@ const EmployerRegistration = ({ onSuccess }) => {
                   </div>
                 )}
 
+                {/* Step 3: Account Setup */}
+                {currentStep === 3 && (
+                  <div className={styles.step}>
+                    <div className={styles.stepHeader}>
+                      <div className={styles.stepIcon}>
+                        <Lock size={24} />
+                      </div>
+                      <div className={styles.stepTitle}>
+                        <h2>Account Setup</h2>
+                        <p>Set up your login credentials</p>
+                      </div>
+                    </div>
+
+                    <div className={styles.stepContent}>
+                      <div className={styles.formRow}>
+                        <div className={styles.formGroup}>
+                          <label htmlFor="password" className={styles.label}>
+                            Password <span className={styles.required}>*</span>
+                          </label>
+                          <input
+                            id="password"
+                            type="password"
+                            name="password"
+                            value={formData.password}
+                            onChange={(e) => handleInputChange('password', e.target.value)}
+                            placeholder="Create a strong password"
+                            className={`${styles.input} ${errors.password ? styles.errorInput : ''}`}
+                            autoComplete="new-password"
+                          />
+                          {errors.password && (
+                            <span className={styles.errorText}>{errors.password}</span>
+                          )}
+                          <small className={styles.inputHint}>
+                            At least 8 characters with uppercase, lowercase, and number
+                          </small>
+                        </div>
+
+                        <div className={styles.formGroup}>
+                          <label htmlFor="confirmPassword" className={styles.label}>
+                            Confirm Password <span className={styles.required}>*</span>
+                          </label>
+                          <input
+                            id="confirmPassword"
+                            type="password"
+                            name="confirmPassword"
+                            value={formData.confirmPassword}
+                            onChange={(e) => handleInputChange('confirmPassword', e.target.value)}
+                            placeholder="Confirm your password"
+                            className={`${styles.input} ${errors.confirmPassword ? styles.errorInput : ''}`}
+                            autoComplete="new-password"
+                          />
+                          {errors.confirmPassword && (
+                            <span className={styles.errorText}>{errors.confirmPassword}</span>
+                          )}
+                        </div>
+                      </div>
+
+                      <div className={styles.passwordStrength}>
+                        <h4>Password Requirements:</h4>
+                        <ul>
+                          <li className={formData.password.length >= 8 ? styles.valid : ''}>
+                            ✓ At least 8 characters long
+                          </li>
+                          <li className={/[A-Z]/.test(formData.password) ? styles.valid : ''}>
+                            ✓ Contains uppercase letter
+                          </li>
+                          <li className={/[a-z]/.test(formData.password) ? styles.valid : ''}>
+                            ✓ Contains lowercase letter
+                          </li>
+                          <li className={/\d/.test(formData.password) ? styles.valid : ''}>
+                            ✓ Contains number
+                          </li>
+                        </ul>
+                      </div>
+
+                      <div className={styles.accountInfo}>
+                        <div className={styles.infoBox}>
+                          <h4>🔐 Secure Login Setup</h4>
+                          <p>You can now login with either:</p>
+                          <ul>
+                            <li>📧 <strong>Email + Password</strong> - {formData.email}</li>
+                            <li>📱 <strong>Phone + OTP</strong> - {formData.phone}</li>
+                          </ul>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                )}
+
                 {/* Enhanced Action Buttons */}
                 <div className={styles.actions}>
                   {currentStep > 1 && (
@@ -554,7 +674,7 @@ const EmployerRegistration = ({ onSuccess }) => {
                     </Button>
                   )}
                   
-                  {currentStep < 2 ? (
+                  {currentStep === 1 ? (
                     <Button
                       onClick={handleNext}
                       icon={ArrowRight}
@@ -563,6 +683,16 @@ const EmployerRegistration = ({ onSuccess }) => {
                       size="lg"
                     >
                       Continue to Business Details
+                    </Button>
+                  ) : currentStep === 2 ? (
+                    <Button
+                      onClick={handleNext}
+                      icon={ArrowRight}
+                      iconPosition="right"
+                      className={styles.primaryAction}
+                      size="lg"
+                    >
+                      Continue to Account Setup
                     </Button>
                   ) : (
                     <Button

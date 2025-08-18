@@ -7,6 +7,7 @@ const { prisma } = require('../config/database');
 const multer = require('multer');
 const path = require('path');
 const fs = require('fs');
+const bcrypt = require('bcrypt');
 
 /**
  * Register Worker with Basic Information + DigiLocker Verification
@@ -16,6 +17,7 @@ const registerBasicWorker = async (req, res) => {
   try {
     console.log('📝 Basic worker registration started');
     console.log('Request body:', req.body);
+    console.log('Request files:', req.file);
 
     const {
       name,
@@ -25,19 +27,29 @@ const registerBasicWorker = async (req, res) => {
       state,
       pincode,
       dateOfBirth,
-      aadhaarNumber, // From DigiLocker verification
-      tempUserId, // Temporary ID for DigiLocker verification
+      tempUserId,
+      isDigiLockerVerified,
+      verificationSkipped,
+      password,
+      confirmPassword,
       skills = [],
       experienceLevel = 'FRESHER',
       preferredCategories = []
     } = req.body;
 
+    // Handle aadhaarNumber which might come as array or string
+    let aadhaarNumber = req.body.aadhaarNumber;
+    if (Array.isArray(aadhaarNumber)) {
+      aadhaarNumber = aadhaarNumber.find(num => num && num.trim()) || '';
+    }
+    aadhaarNumber = aadhaarNumber ? aadhaarNumber.toString().trim() : '';
+
     // Validation
-    if (!name || !phone || !city || !state || !tempUserId) {
+    if (!name || !phone || !city || !state) {
       return res.status(400).json({
         success: false,
         error: 'Missing required fields',
-        message: 'Name, phone, city, state and verification ID are required'
+        message: 'Name, phone, city, and state are required'
       });
     }
 
@@ -51,31 +63,60 @@ const registerBasicWorker = async (req, res) => {
       });
     }
 
-    // Skip Aadhaar validation since we'll use the verified one from DigiLocker
-    // The frontend might send a masked number, but we'll use the full number from verification
+    // Handle different verification scenarios
+    let verifiedAadhaarNumber = null;
+    let isIdVerified = false;
+    let idDocumentUrl = null;
+    let verificationMethod = 'pending';
 
-    // Verify DigiLocker verification exists (only check by tempUserId since aadhaarNumber might be masked)
-    const digilockerVerification = await prisma.digilockerVerification.findUnique({
-      where: { 
-        userId: tempUserId,
-      },
-      select: {
-        aadhaarNumber: true,
-        isVerified: true,
-        verifiedName: true
+    if (isDigiLockerVerified === 'true' && tempUserId) {
+      // DigiLocker verification path
+      const digilockerVerification = await prisma.digilockerVerification.findUnique({
+        where: { userId: tempUserId },
+        select: {
+          aadhaarNumber: true,
+          isVerified: true,
+          verifiedName: true
+        }
+      });
+
+      if (!digilockerVerification || !digilockerVerification.isVerified) {
+        return res.status(400).json({
+          success: false,
+          error: 'DigiLocker verification failed',
+          message: 'DigiLocker verification not found or incomplete'
+        });
       }
-    });
 
-    if (!digilockerVerification || !digilockerVerification.isVerified) {
+      verifiedAadhaarNumber = digilockerVerification.aadhaarNumber;
+      isIdVerified = true;
+      verificationMethod = 'digilocker';
+      
+    } else if (req.file) {
+      // Manual document upload path
+      verifiedAadhaarNumber = aadhaarNumber || null;
+      isIdVerified = false; // Requires manual verification
+      idDocumentUrl = `/uploads/id-documents/${req.file.filename}`;
+      verificationMethod = 'manual_upload';
+      
+    } else if (aadhaarNumber && verificationSkipped !== 'true') {
+      // Manual Aadhaar number entry (requires verification later)
+      verifiedAadhaarNumber = aadhaarNumber;
+      isIdVerified = false;
+      verificationMethod = 'manual_entry';
+      
+    } else if (verificationSkipped === 'true') {
+      // Verification skipped - can complete registration but with limited features
+      verifiedAadhaarNumber = aadhaarNumber || null;
+      isIdVerified = false;
+      verificationMethod = 'skipped';
+    } else {
       return res.status(400).json({
         success: false,
-        error: 'Aadhaar verification required',
-        message: 'Please complete Aadhaar verification through DigiLocker first'
+        error: 'Verification required',
+        message: 'Please complete Aadhaar verification, provide manual details, or skip for now'
       });
     }
-
-    // Use the verified Aadhaar number from DigiLocker (not the potentially masked one from frontend)
-    const verifiedAadhaarNumber = digilockerVerification.aadhaarNumber;
 
     // Check if phone number already exists
     const existingUser = await prisma.user.findUnique({
@@ -90,19 +131,88 @@ const registerBasicWorker = async (req, res) => {
       });
     }
 
-    // Check if Aadhaar number already exists
-    const existingAadhaar = await prisma.$queryRaw`
-      SELECT w.id FROM workers w 
-      WHERE w."idDocumentNumber" = ${verifiedAadhaarNumber}
-      LIMIT 1
-    `;
+    // Validate and hash password if provided
+    let hashedPassword = null;
+    let passwordSet = false;
+    
+    if (password) {
+      // Password validation
+      if (password.length < 8) {
+        return res.status(400).json({
+          success: false,
+          error: 'Invalid password',
+          message: 'Password must be at least 8 characters long'
+        });
+      }
 
-    if (existingAadhaar && existingAadhaar.length > 0) {
-      return res.status(400).json({
-        success: false,
-        error: 'Aadhaar already registered',
-        message: 'This Aadhaar number is already registered with another account'
-      });
+      if (!/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)/.test(password)) {
+        return res.status(400).json({
+          success: false,
+          error: 'Invalid password',
+          message: 'Password must contain at least one uppercase letter, one lowercase letter, and one number'
+        });
+      }
+
+      if (password !== confirmPassword) {
+        return res.status(400).json({
+          success: false,
+          error: 'Password mismatch',
+          message: 'Password and confirm password do not match'
+        });
+      }
+
+      // Check if email already exists (required for password login)
+      if (email) {
+        const existingEmail = await prisma.user.findUnique({
+          where: { email: email.trim().toLowerCase() }
+        });
+
+        if (existingEmail) {
+          return res.status(400).json({
+            success: false,
+            error: 'Email already exists',
+            message: 'This email is already registered with another account'
+          });
+        }
+      } else {
+        return res.status(400).json({
+          success: false,
+          error: 'Email required',
+          message: 'Email is required when setting up a password'
+        });
+      }
+
+      // Hash password
+      try {
+        const saltRounds = 12;
+        hashedPassword = await bcrypt.hash(password, saltRounds);
+        passwordSet = true;
+        console.log('✅ Password hashed successfully');
+      } catch (hashError) {
+        console.error('❌ Password hashing failed:', hashError);
+        return res.status(500).json({
+          success: false,
+          error: 'Password processing failed',
+          message: 'Unable to process password. Please try again.'
+        });
+      }
+    }
+
+    // Check if Aadhaar number already exists (only if we have a verified number and it's not empty)
+    if (verifiedAadhaarNumber && verifiedAadhaarNumber.length >= 10) {
+      const existingAadhaar = await prisma.$queryRaw`
+        SELECT w.id FROM workers w 
+        WHERE w."idDocumentNumber" = ${verifiedAadhaarNumber}
+        LIMIT 1
+      `;
+
+      if (existingAadhaar && existingAadhaar.length > 0) {
+        return res.status(400).json({
+          success: false,
+          error: 'Aadhaar already registered',
+          message: 'This Aadhaar number is already registered with another account'
+        });
+      }
     }
 
     // Create user and worker in a transaction
@@ -113,11 +223,14 @@ const registerBasicWorker = async (req, res) => {
           name: name.trim(),
           phone: phone.trim(),
           email: email ? email.trim().toLowerCase() : null,
-          userType: 'WORKER'
+          userType: 'WORKER',
+          password: hashedPassword,
+          passwordSet: passwordSet,
+          lastPasswordChange: passwordSet ? new Date() : null
         }
       });
 
-      // Create worker profile with DigiLocker verification
+      // Create worker profile with appropriate verification status
       const worker = await tx.worker.create({
         data: {
           userId: user.id,
@@ -126,16 +239,17 @@ const registerBasicWorker = async (req, res) => {
           pincode: pincode ? pincode.trim() : null,
           dateOfBirth: dateOfBirth ? new Date(dateOfBirth) : null,
           idDocumentType: 'AADHAR',
-          idDocumentNumber: verifiedAadhaarNumber.trim(),
-          idDocumentUrl: null, // No file needed with DigiLocker
-          isIdVerified: true, // Already verified through DigiLocker
-          idVerifiedAt: new Date(),
+          idDocumentNumber: (verifiedAadhaarNumber && verifiedAadhaarNumber.length >= 10) ? verifiedAadhaarNumber.trim() : null,
+          idDocumentUrl: idDocumentUrl,
+          isIdVerified: isIdVerified,
+          idVerifiedAt: isIdVerified ? new Date() : null,
           skills: Array.isArray(skills) ? skills : [],
           experienceLevel,
           registrationMethod: 'BASIC_INFO',
           preferredCategories: Array.isArray(preferredCategories) ? preferredCategories : [],
-          isPhoneVerified: true, // Since they registered with OTP
-          isKYCCompleted: true // Completed via DigiLocker
+          isPhoneVerified: true,
+          isKYCCompleted: isIdVerified,
+          verificationMethod: verificationMethod
         }
       });
 
@@ -147,7 +261,7 @@ const registerBasicWorker = async (req, res) => {
       workerId: result.worker.id,
       name: result.user.name,
       aadhaarVerified: result.worker.isIdVerified,
-      verificationMethod: 'digilocker'
+      verificationMethod: verificationMethod
     });
 
     // Return success response
@@ -171,18 +285,28 @@ const registerBasicWorker = async (req, res) => {
           aadhaarNumber: result.worker.idDocumentNumber ? 
             `${result.worker.idDocumentNumber.slice(0, 4)}****${result.worker.idDocumentNumber.slice(-4)}` : null,
           isIdVerified: result.worker.isIdVerified,
-          verificationMethod: 'digilocker',
+          verificationMethod: verificationMethod,
           skills: result.worker.skills,
           experienceLevel: result.worker.experienceLevel,
           preferredCategories: result.worker.preferredCategories,
           categoryBadges: [], // Empty initially
           canApplyToFreeTasks: true
         },
-        nextSteps: [
+        nextSteps: verificationMethod === 'digilocker' ? [
           'Your Aadhaar has been verified successfully through DigiLocker',
           'You can start applying to free tasks to earn your first badges',
           'Complete your profile by adding more skills and preferences',
           'Start building your reputation by completing tasks'
+        ] : verificationMethod === 'skipped' ? [
+          'Registration completed! You can browse and apply to tasks',
+          'Complete Aadhaar verification later to unlock badge earning',
+          'Add more skills and preferences to improve your profile',
+          'Note: Some premium features require identity verification'
+        ] : [
+          'Registration completed! Your identity verification is pending',
+          'You can browse tasks while we verify your documents',
+          'Complete verification to unlock all features and badge earning',
+          'Add more skills and preferences to improve your profile'
         ]
       }
     });
